@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Logo -->
-<img src="https://iili.io/fI3HFM7.png" alt="ThreadSocket Logo" width="800"/>
+<img src="https://iili.io/fI3HFM7.png" alt="ThreadSocket Logo" width="900"/>
 
 <br/>
 
