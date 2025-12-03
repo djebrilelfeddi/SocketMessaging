@@ -29,6 +29,29 @@
 
 SocketMessaging is a C++17 client/server stack that combines a thread-pooled TCP listener, a queued message dispatcher, and an administrative control surface for orchestrating multi-user messaging sessions. The code base targets Linux/POSIX environments and relies on raw sockets and lightweight utilities instead of heavyweight networking frameworks.
 
+## Screenshots
+
+<div align="center">
+<table>
+<tr>
+<td align="center"><b>Server Console</b></td>
+<td align="center"><b>Client Menu</b></td>
+</tr>
+<tr>
+<td><img src="screenshots/server.png" alt="Server Console" width="400"/></td>
+<td><img src="screenshots/client_menu.png" alt="Client Menu" width="550"/></td>
+</tr>
+<tr>
+<td align="center"><b>Admin Commands</b></td>
+<td align="center"><b>Unread Messages</b></td>
+</tr>
+<tr>
+<td><img src="screenshots/admin_commands.png" alt="Admin Commands" width="400"/></td>
+<td><img src="screenshots/unread.png" alt="Unread Messages" width="550"/></td>
+</tr>
+</table>
+</div>
+
 ## Key Capabilities
 
 - Concurrent server runtime with acceptor, dispatcher, heartbeat, and admin command threads managed through a shared `ThreadPool`.
