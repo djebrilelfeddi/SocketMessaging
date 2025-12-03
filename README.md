@@ -17,7 +17,7 @@
 
 <br/>
 
-[🚀 Quick Start](#build-and-run) · [🏗️ Architecture](#architecture-overview) · [📡 Protocol](#message-pipeline) · [⚙️ Admin](#administrative-shell)
+[Quick Start](#build-and-run) · [Architecture](#architecture-overview) · [Protocol](#message-pipeline) · [Admin](#administrative-shell)
 
 ---
 
