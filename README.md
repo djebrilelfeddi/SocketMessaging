@@ -71,6 +71,14 @@ SocketMessaging is a C++17 client/server stack that combines a thread-pooled TCP
 
 ## Message Pipeline
 
+<div align="center">
+<img src="docs/message_flow.png" alt="Message Flow Diagram" width="700"/>
+
+*Sequence diagram showing the complete communication flow*
+</div>
+
+<br/>
+
 1. Clients connect using the `CONNECT;username` request. Authentication enforces unique, validated usernames and checks the banlist.
 2. Once registered, SEND commands (`SEND;recipient;subject;body`) are queued via the dispatcher. When `recipient` is `all`, the handler expands the broadcast into one queued message per user.
 3. The dispatcher wakes when messages arrive, applies the configured queue policy, and formats the final `MESSAGE;from;subject;body;timestamp` payload for the destination socket.
@@ -144,37 +152,6 @@ Changes via `/set` take effect immediately and survive until `/reset` or server 
 - Clients may request the trailing 50 lines of the server log with `GET_LOG`.
 - Verbose mode (`-v`) mirrors DEBUG output to the console, aiding local debugging.
 - Heartbeat warnings, queue overflows, and dispatcher errors are surfaced through the logger for quick diagnosis.
-
-## Project Layout
-
-```
-include/
-├─ Client/                 # Client-facing APIs (Client, UI, MessageHandler)
-├─ Server/                 # Server core, dispatcher, admin handlers, configuration
-└─ Utils/                  # Logging, runtime config, message parsing, thread pool, sockets
-
-src/
-├─ main_server.cpp         # CLI entry point for the server daemon
-├─ main_client.cpp         # CLI entry point for the console client
-├─ Server/                 # Server-side implementations
-├─ Client/                 # Client-side implementations
-└─ Utils/                  # Shared utilities
-```
-
-## Extensibility Notes
-
-- **Transport adapters**: `Network::NetworkStream` encapsulates socket IO; add TLS or framing by extending this layer without rewriting server/client logic.
-- **Queue policies**: `DispatcherConfig` defines queue strategies; introduce custom policies (e.g., priority queues) by extending the enum and switch logic.
-- **Persistence**: Banlists currently live in a flat file (`banlist`). Swap in a database or remote store by reimplementing `loadBanlist`/`saveBanlist`.
-- **UI layers**: `ClientUI` demonstrates a text-based shell. Integrate GUIs or web front-ends by reusing `Client` and `MessageHandler`.
-- **Metrics**: Hook into `Server::incrementMessages*` to export data to Prometheus or other monitoring systems.
-
-## Operational Guidance
-
-- Run the server under a service manager (systemd, supervisor) to guarantee restart behaviour and log rotation.
-- Expose the admin shell carefully; by default it binds to stdin of the server process—wrap it with SSH or limit shell access in production.
-- Harden deployments by running behind a TLS terminator or VPN, and by enforcing stronger authentication in the CONNECT handshake.
-- Monitor `banlist` and `server.log` for repeated connection attempts, which may indicate abuse or misconfiguration.
 
 ## License
 
