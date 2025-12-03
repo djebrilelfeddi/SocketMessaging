@@ -1,6 +1,6 @@
 /**
  * @file MessageHandler.cpp
- * @brief Gestionnaire de messages simplifié (sans affichage)
+ * @brief Simplified message handler (no display)
  */
 
 #include "Client/MessageHandler.hpp"
@@ -11,17 +11,17 @@
 #include "Utils/MessageParser.hpp"
 
 MessageHandler::MessageHandler(int socketFd) : socketFd(socketFd) {
-    //LOG_DEBUG("MessageHandler créé pour socket " + std::to_string(socketFd));
+    //LOG_DEBUG("MessageHandler created for socket " + std::to_string(socketFd));
 }
 
 bool MessageHandler::sendMessage(const std::string& to, const std::string& subject, const std::string& body) {
     if (!Utils::isValidUsername(to) && to != "all") {
-        LOG_ERROR("Destinataire invalide: " + to);
+        LOG_ERROR("Invalid recipient: " + to);
         return false;
     }
     
     if (!Utils::isValidSubject(subject)) {
-        LOG_ERROR("Sujet invalide");
+        LOG_ERROR("Invalid subject");
         return false;
     }
     
@@ -31,7 +31,7 @@ bool MessageHandler::sendMessage(const std::string& to, const std::string& subje
 bool MessageHandler::sendCommand(const std::string& command) {
     Network::NetworkStream stream(socketFd);
     if (!stream.send(command)) {
-        LOG_ERROR("Échec de l'envoi de la commande");
+        LOG_ERROR("Failed to send command");
         return false;
     }
     return true;
@@ -43,21 +43,21 @@ void MessageHandler::listen(EventCallback onEvent) {
     while (stream.isConnected()) {
         auto message = stream.receive();
         if (!message) {
-            LOG_INFO("Connexion fermée");
+            LOG_INFO("Connection closed");
             break;
         }
         
         auto event = parseMessage(*message);
         if (event) {
-            // Stocker les messages reçus
+            // Store received messages
             if (event->type == ServerEvent::MESSAGE) {
                 storeMessage(*event);
             }
-            // Répondre automatiquement au PING
+            // Automatically reply to PING
             else if (event->type == ServerEvent::PING) {
                 sendCommand(Utils::MessageParser::build("PONG"));
-                LOG_DEBUG("PING reçu, PONG envoyé");
-                continue;  // Pas besoin de notifier l'UI
+                LOG_DEBUG("PING received, PONG sent");
+                continue;  // No need to notify UI
             }
             
             if (onEvent) {
@@ -70,7 +70,7 @@ void MessageHandler::listen(EventCallback onEvent) {
 std::optional<ServerEventData> MessageHandler::parseMessage(const std::string& raw) {
     auto parsed = Utils::MessageParser::parse(raw);
     if (!parsed.isValid) {
-        //LOG_WARNING("Message invalide reçu");
+        //LOG_WARNING("Invalid message received");
         return std::nullopt;
     }
     
@@ -82,11 +82,11 @@ std::optional<ServerEventData> MessageHandler::parseMessage(const std::string& r
     }
     else if (parsed.command == "OK") {
         event.type = ServerEvent::OK;
-        event.data = parsed.argCount() > 0 ? parsed.arg(0) : "Opération réussie";
+        event.data = parsed.argCount() > 0 ? parsed.arg(0) : "Operation successful";
     }
     else if (parsed.command == "ERROR") {
         event.type = ServerEvent::ERROR_MSG;
-        event.data = parsed.argCount() > 0 ? parsed.arg(0) : "Erreur inconnue";
+        event.data = parsed.argCount() > 0 ? parsed.arg(0) : "Unknown error";
     }
     else if (parsed.command == "USERS" && parsed.argCount() >= 1) {
         event.type = ServerEvent::USERS;
@@ -119,7 +119,7 @@ void MessageHandler::storeMessage(const ServerEventData& data) {
     msg.index = messageCounter++;
     
     unreadMessages.push_back(msg);
-    //LOG_INFO("Message reçu de " + msg.from + " (index: " + std::to_string(msg.index) + ")");
+    //LOG_INFO("Message received from " + msg.from + " (index: " + std::to_string(msg.index) + ")");
 }
 
 std::vector<ReceivedMessage> MessageHandler::getUnreadMessages() const {
@@ -145,7 +145,7 @@ bool MessageHandler::readMessageByIndex(int index, ReceivedMessage& out) {
         }
     }
     
-    // Chercher dans les messages déjà lus
+    // Search in already read messages
     for (auto& msg : readMessages) {
         if (msg.index == index) {
             out = msg;

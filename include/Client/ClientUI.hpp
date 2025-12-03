@@ -1,6 +1,6 @@
 /**
  * @file ClientUI.hpp
- * @brief Interface utilisateur pour le client de messagerie
+ * @brief User interface for the messaging client
  */
 
 #ifndef CLIENT_UI_HPP
@@ -17,28 +17,28 @@
 
 /**
  * @class ClientUI
- * @brief Gère toute l'interface utilisateur et l'affichage
+ * @brief Manages all user interface and display
  */
 class ClientUI {
 public:
     ClientUI(Client& client, const std::string& serverIp, int serverPort);
     
     /**
-     * @brief Lance l'interface utilisateur (connexion + boucle principale)
-     * @return true si sortie normale, false si erreur
+     * @brief Launches the user interface (connection + main loop)
+     * @return true if normal exit, false if error
      */
     bool run();
     
-    // Callback pour les événements serveur (appelé par le thread d'écoute)
+    // Callback for server events (called by listening thread)
     void onServerEvent(const ServerEventData& event);
 
 private:
     using Command = std::function<void()>;
     
-    // Connexion
+    // Connection
     bool promptAndConnect();
     
-    // Affichage
+    // Display
     void clearScreen();
     void printHeader();
     void printMenu();
@@ -48,14 +48,14 @@ private:
     void promptAndWait();
     void printUserList(const std::string& userListData);
     
-    // Commandes du menu
+    // Menu commands
     void cmdSendMessage(bool broadcast);
     void cmdListUnread();
     void cmdReadMessage();
     void cmdListUsers();
     void cmdGetLog();
     
-    // Gestion des événements serveur
+    // Server events management
     void displayEvent(const ServerEventData& event);
     void displayPendingEvents();
     void waitForResponse(ServerEvent expectedType, int timeoutMs = 3000);

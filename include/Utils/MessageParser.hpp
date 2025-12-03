@@ -1,6 +1,6 @@
 /**
  * @file MessageParser.hpp
- * @brief Parseur de messages avec protocole délimité
+ * @brief Message parser with delimited protocol
  */
 
 #ifndef MESSAGE_PARSER_HPP
@@ -13,13 +13,13 @@ namespace Utils {
 
 /**
  * @class MessageParser
- * @brief Parse et construit des messages selon le protocole
+ * @brief Parses and builds messages according to protocol
  */
 class MessageParser {
 public:
     /**
      * @struct ParsedMessage
-     * @brief Résultat du parsing d'un message
+     * @brief Result of message parsing
      */
     struct ParsedMessage {
         std::string command;
@@ -34,17 +34,17 @@ public:
     };
     
     /**
-     * @brief Parse un message brut
-     * @param rawMessage Message à parser
-     * @return Message parsé
+     * @brief Parses a raw message
+     * @param rawMessage Message to parse
+     * @return Parsed message
      */
     static ParsedMessage parse(const std::string& rawMessage);
     
     /**
-     * @brief Construit un message formaté
-     * @param command Commande
+     * @brief Builds a formatted message
+     * @param command Command
      * @param args Arguments
-     * @return Message formaté
+     * @return Formatted message
      */
     static std::string build(const std::string& command, 
                             const std::vector<std::string>& args = {});

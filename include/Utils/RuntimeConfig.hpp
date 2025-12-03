@@ -1,6 +1,6 @@
 /**
  * @file RuntimeConfig.hpp
- * @brief Configuration runtime modifiable via commandes
+ * @brief Runtime configuration modifiable via commands
  */
 
 #ifndef RUNTIME_CONFIG_HPP
@@ -14,24 +14,24 @@
 
 /**
  * @enum ConfigType
- * @brief Type de valeur de configuration
+ * @brief Configuration value type
  */
 enum class ConfigType { INT, BOOL };
 
 /**
  * @struct ConfigDef
- * @brief Définition d'une configuration avec ses contraintes
+ * @brief Configuration definition with its constraints
  */
 struct ConfigDef {
     ConfigType type;
     std::string defaultValue;
-    int minValue = 0;      // Pour INT uniquement
-    int maxValue = INT_MAX; // Pour INT uniquement
+    int minValue = 0;      // For INT only
+    int maxValue = INT_MAX; // For INT only
 };
 
 /**
  * @class RuntimeConfig
- * @brief Singleton pour gérer les configurations modifiables à l'exécution
+ * @brief Singleton to manage runtime modifiable configurations
  */
 class RuntimeConfig {
 public:
@@ -44,35 +44,35 @@ public:
     RuntimeConfig& operator=(const RuntimeConfig&) = delete;
 
     /**
-     * @brief Définit une valeur de configuration
-     * @param key Nom de la constante
-     * @param value Nouvelle valeur (string)
-     * @return true si la modification a réussi
+     * @brief Sets a configuration value
+     * @param key Constant name
+     * @param value New value (string)
+     * @return true if modification succeeded
      */
     bool set(const std::string& key, const std::string& value);
 
     /**
-     * @brief Récupère une valeur entière
-     * @param key Nom de la constante
-     * @return Valeur ou std::nullopt si inexistante
+     * @brief Gets an integer value
+     * @param key Constant name
+     * @return Value or std::nullopt if not found
      */
     std::optional<int> getInt(const std::string& key) const;
 
     /**
-     * @brief Récupère une valeur booléenne
-     * @param key Nom de la constante
-     * @return Valeur ou std::nullopt si inexistante
+     * @brief Gets a boolean value
+     * @param key Constant name
+     * @return Value or std::nullopt if not found
      */
     std::optional<bool> getBool(const std::string& key) const;
 
     /**
-     * @brief Liste toutes les configurations disponibles
-     * @return Map des configurations avec leurs valeurs actuelles
+     * @brief Lists all available configurations
+     * @return Map of configurations with their current values
      */
     std::unordered_map<std::string, std::string> listAll() const;
 
     /**
-     * @brief Réinitialise toutes les valeurs aux valeurs par défaut
+     * @brief Resets all values to defaults
      */
     void reset();
 

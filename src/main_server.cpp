@@ -10,7 +10,7 @@ Server* globalServer = nullptr;
 
 void signalHandler(int signal) {
     if (signal == SIGINT || signal == SIGTERM) {
-        std::cout << "\nSignal d'arrêt reçu...\n";
+        std::cout << "\nShutdown signal received...\n";
         if (globalServer) {
             globalServer->stop();
         }
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
             if (i + 1 < argc) {
                 port = std::atoi(argv[++i]);
                 if (port <= 0 || port > 65535) {
-                    std::cerr << "Port invalide. Utilisation du port par défaut: " << Constants::DEFAULT_PORT << "\n";
+                    std::cerr << "Invalid port. Using default port: " << Constants::DEFAULT_PORT << "\n";
                     port = Constants::DEFAULT_PORT;
                 }
             } else {
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     globalServer = &server;
     
     if (server.start(port, maxConnections) != 0) {
-        LOG_ERROR("Échec du démarrage du serveur");
+        LOG_ERROR("Failed to start server");
         return 1;
     }
     

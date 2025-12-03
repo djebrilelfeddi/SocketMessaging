@@ -27,7 +27,7 @@ void RuntimeConfig::initializeDefinitions() {
 bool RuntimeConfig::validateValue(const std::string& key, const std::string& value, const ConfigDef& def) {
     if (def.type == ConfigType::BOOL) {
         if (value != "true" && value != "false" && value != "1" && value != "0") {
-            LOG_WARNING("Valeur invalide pour " + key + " (attendu: true/false/1/0)");
+            LOG_WARNING("Invalid value for " + key + " (expected: true/false/1/0)");
             return false;
         }
         return true;
@@ -37,13 +37,13 @@ bool RuntimeConfig::validateValue(const std::string& key, const std::string& val
     try {
         int numValue = std::stoi(value);
         if (numValue < def.minValue || numValue > def.maxValue) {
-            LOG_WARNING(key + " doit être entre " + std::to_string(def.minValue) + 
-                       " et " + std::to_string(def.maxValue));
+            LOG_WARNING(key + " must be between " + std::to_string(def.minValue) + 
+                       " and " + std::to_string(def.maxValue));
             return false;
         }
         return true;
     } catch (...) {
-        LOG_WARNING("Valeur invalide pour " + key + " (attendu: nombre entier)");
+        LOG_WARNING("Invalid value for " + key + " (expected: integer)");
         return false;
     }
 }
@@ -53,7 +53,7 @@ bool RuntimeConfig::set(const std::string& key, const std::string& value) {
     
     auto it = definitions.find(key);
     if (it == definitions.end()) {
-        LOG_WARNING("Configuration inconnue: " + key);
+        LOG_WARNING("Unknown configuration: " + key);
         return false;
     }
     
@@ -62,7 +62,7 @@ bool RuntimeConfig::set(const std::string& key, const std::string& value) {
     }
     
     config[key] = value;
-    LOG_INFO("Configuration modifiée: " + key + " = " + value);
+    LOG_INFO("Configuration modified: " + key + " = " + value);
     return true;
 }
 
@@ -98,5 +98,5 @@ void RuntimeConfig::reset() {
     for (const auto& [key, def] : definitions) {
         config[key] = def.defaultValue;
     }
-    LOG_INFO("Configurations réinitialisées aux valeurs par défaut");
+    LOG_INFO("Configurations reset to default values");
 }

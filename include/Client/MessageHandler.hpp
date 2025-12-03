@@ -1,6 +1,6 @@
 /**
  * @file MessageHandler.hpp
- * @brief Gestionnaire de messages pour le client
+ * @brief Message handler for the client
  */
 
 #ifndef MESSAGING_HANDLER_HPP
@@ -16,7 +16,7 @@
 
 /**
  * @struct ReceivedMessage
- * @brief Représente un message reçu par le client
+ * @brief Represents a message received by the client
  */
 struct ReceivedMessage {
     std::string from;
@@ -29,7 +29,7 @@ struct ReceivedMessage {
 };
 
 /**
- * @brief Types d'événements reçus du serveur
+ * @brief Types of events received from the server
  */
 enum class ServerEvent {
     NONE,
@@ -42,7 +42,7 @@ enum class ServerEvent {
 };
 
 /**
- * @brief Données d'un événement serveur
+ * @brief Data of a server event
  */
 struct ServerEventData {
     ServerEvent type;
@@ -52,7 +52,7 @@ struct ServerEventData {
 
 /**
  * @class MessageHandler
- * @brief Gère les messages et la communication réseau (sans affichage)
+ * @brief Manages messages and network communication (without display)
  */
 class MessageHandler {
 public:
@@ -60,14 +60,14 @@ public:
     
     explicit MessageHandler(int socketFd);
     
-    // Envoi de commandes
+    // Command sending
     bool sendMessage(const std::string& to, const std::string& subject, const std::string& body);
     bool sendCommand(const std::string& command);
     
-    // Écoute (bloquant)
+    // Listen (blocking)
     void listen(EventCallback onEvent);
     
-    // Gestion des messages stockés
+    // Stored messages management
     std::vector<ReceivedMessage> getUnreadMessages() const;
     int getUnreadCount() const;
     bool readMessageByIndex(int index, ReceivedMessage& out);

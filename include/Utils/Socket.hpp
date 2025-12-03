@@ -1,6 +1,6 @@
 /**
  * @file Socket.hpp
- * @brief Wrapper RAII pour file descriptors de sockets
+ * @brief RAII wrapper for socket file descriptors
  */
 
 #ifndef SOCKET_HPP
@@ -10,25 +10,25 @@
 
 /**
  * @class Socket
- * @brief Gestion RAII de file descriptors avec move semantics
+ * @brief RAII management of file descriptors with move semantics
  * 
- * Fermeture automatique dans le destructeur. Non-copyable, move-only.
+ * Automatic closure in destructor. Non-copyable, move-only.
  */
 class Socket {
 public:
     /**
-     * @brief Constructeur par défaut (socket invalide)
+     * @brief Default constructor (invalid socket)
      */
     Socket() : fd_(-1) {}
     
     /**
-     * @brief Constructeur avec fd existant
-     * @param fd File descriptor à gérer
+     * @brief Constructor with existing fd
+     * @param fd File descriptor to manage
      */
     explicit Socket(int fd) : fd_(fd) {}
     
     /**
-     * @brief Destructeur (ferme automatiquement)
+     * @brief Destructor (closes automatically)
      */
     ~Socket() {
         close();
@@ -39,7 +39,7 @@ public:
     
     /**
      * @brief Move constructor
-     * @param other Socket source
+     * @param other Source socket
      */
     Socket(Socket&& other) noexcept : fd_(other.fd_) {
         other.fd_ = -1;
@@ -47,8 +47,8 @@ public:
     
     /**
      * @brief Move assignment
-     * @param other Socket source
-     * @return Référence à this
+     * @param other Source socket
+     * @return Reference to this
      */
     Socket& operator=(Socket&& other) noexcept {
         if (this != &other) {
@@ -60,19 +60,19 @@ public:
     }
     
     /**
-     * @brief Obtient le file descriptor
-     * @return fd (-1 si invalide)
+     * @brief Gets the file descriptor
+     * @return fd (-1 if invalid)
      */
     [[nodiscard]] int get() const { return fd_; }
     
     /**
-     * @brief Vérifie la validité du socket
-     * @return true si fd >= 0
+     * @brief Checks socket validity
+     * @return true if fd >= 0
      */
     [[nodiscard]] bool isValid() const { return fd_ >= 0; }
     
     /**
-     * @brief Ferme le socket
+     * @brief Closes the socket
      */
     void close() {
         if (fd_ >= 0) {
@@ -82,8 +82,8 @@ public:
     }
     
     /**
-     * @brief Libère le fd sans fermer (transfert ownership)
-     * @return fd original
+     * @brief Releases fd without closing (ownership transfer)
+     * @return Original fd
      */
     int release() {
         int temp = fd_;

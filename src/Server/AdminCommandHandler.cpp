@@ -21,18 +21,18 @@ void AdminCommandHandler::initializeCommands() {
         commands[name] = { [this, method](const auto& args) { (this->*method)(args); }, usage, desc, minArgs };
     };
     
-    reg("help",      &AdminCommandHandler::cmdHelp,      "/help",                  "Afficher cette aide",      0);
-    reg("broadcast", &AdminCommandHandler::cmdBroadcast, "/broadcast <message>",   "Envoyer à tous",           1);
-    reg("send",      &AdminCommandHandler::cmdSend,      "/send <user> <message>", "Envoyer à un utilisateur", 2);
-    reg("list",      &AdminCommandHandler::cmdList,      "/list",                  "Lister les clients",       0);
-    reg("kick",      &AdminCommandHandler::cmdKick,      "/kick <user>",           "Déconnecter un client",    1);
-    reg("ban",       &AdminCommandHandler::cmdBan,       "/ban <user>",            "Bannir un client",         1);
-    reg("unban",     &AdminCommandHandler::cmdUnban,     "/unban <user>",          "Débannir un client",       1);
-    reg("stats",     &AdminCommandHandler::cmdStats,     "/stats",                 "Afficher les stats",       0);
-    reg("set",       &AdminCommandHandler::cmdSet,       "/set <nom> <valeur>",    "Modifier une config",      2);
-    reg("config",    &AdminCommandHandler::cmdConfig,    "/config",                "Lister les configs",       0);
-    reg("reset",     &AdminCommandHandler::cmdReset,     "/reset",                 "Réinitialiser configs",    0);
-    reg("stop",      &AdminCommandHandler::cmdStop,      "/stop",                  "Arrêter le serveur",       0);
+    reg("help",      &AdminCommandHandler::cmdHelp,      "/help",                  "Show this help",          0);
+    reg("broadcast", &AdminCommandHandler::cmdBroadcast, "/broadcast <message>",   "Send to all",              1);
+    reg("send",      &AdminCommandHandler::cmdSend,      "/send <user> <message>", "Send to a user",           2);
+    reg("list",      &AdminCommandHandler::cmdList,      "/list",                  "List clients",             0);
+    reg("kick",      &AdminCommandHandler::cmdKick,      "/kick <user>",           "Disconnect a client",      1);
+    reg("ban",       &AdminCommandHandler::cmdBan,       "/ban <user>",            "Ban a client",             1);
+    reg("unban",     &AdminCommandHandler::cmdUnban,     "/unban <user>",          "Unban a client",           1);
+    reg("stats",     &AdminCommandHandler::cmdStats,     "/stats",                 "Show statistics",          0);
+    reg("set",       &AdminCommandHandler::cmdSet,       "/set <name> <value>",    "Modify a config",          2);
+    reg("config",    &AdminCommandHandler::cmdConfig,    "/config",                "List configurations",      0);
+    reg("reset",     &AdminCommandHandler::cmdReset,     "/reset",                 "Reset configurations",     0);
+    reg("stop",      &AdminCommandHandler::cmdStop,      "/stop",                  "Stop the server",          0);
 }
 
 void AdminCommandHandler::commandLoop() {
@@ -45,7 +45,7 @@ void AdminCommandHandler::commandLoop() {
         if (line.empty()) continue;
         
         if (line[0] != '/') {
-            std::cout << "Les commandes doivent commencer par '/'. Tapez /help\n";
+            std::cout << "Commands must start with '/'. Type /help\n";
             continue;
         }
         
@@ -56,7 +56,7 @@ void AdminCommandHandler::commandLoop() {
         auto it = commands.find(cmdName);
         
         if (it == commands.end()) {
-            std::cout << "Commande inconnue: /" << cmdName << "\n";
+            std::cout << "Unknown command: /" << cmdName << "\n";
             continue;
         }
         
@@ -71,10 +71,10 @@ void AdminCommandHandler::commandLoop() {
     }
 }
 
-// === Commandes ===
+// === Commands ===
 
 void AdminCommandHandler::cmdHelp(const std::vector<std::string>&) {
-    std::cout << "Commandes disponibles:\n";
+    std::cout << "Available commands:\n";
     for (const auto& [name, cmd] : commands) {
         std::cout << "  " << std::left << std::setw(24) << cmd.usage << " - " << cmd.description << "\n";
     }
@@ -89,26 +89,26 @@ void AdminCommandHandler::cmdBroadcast(const std::vector<std::string>& args) {
     
     auto clients = server->getAllClients();
     if (clients.empty()) {
-        std::cout << "[Admin] Aucun client connecté\n";
+        std::cout << "[Admin] No clients connected\n";
         return;
     }
     
     int sent = 0;
     for (const auto& [username, socket] : clients) {
         Network::NetworkStream stream(socket);
-        if (stream.send(Utils::MessageParser::build("MESSAGE", "SERVEUR", "Annonce", message, "0"))) {
+        if (stream.send(Utils::MessageParser::build("MESSAGE", "SERVER", "Announcement", message, "0"))) {
             sent++;
         }
     }
     
-    std::cout << "[Admin] Broadcast envoyé à " << sent << " client(s)\n";
+    std::cout << "[Admin] Broadcast sent to " << sent << " client(s)\n";
     LOG_INFO("Admin broadcast: " + message);
 }
 
 void AdminCommandHandler::cmdSend(const std::vector<std::string>& args) {
     std::string username = args[1];
     
-    // Reconstituer le message
+    // Reconstruct the message
     std::string message;
     for (size_t i = 2; i < args.size(); ++i) {
         if (i > 2) message += " ";
@@ -117,16 +117,16 @@ void AdminCommandHandler::cmdSend(const std::vector<std::string>& args) {
     
     int socket = server->getUserSocket(username);
     if (socket <= 0) {
-        std::cout << "[Admin] Utilisateur '" << username << "' non trouvé\n";
+        std::cout << "[Admin] User '" << username << "' not found\n";
         return;
     }
     
     Network::NetworkStream stream(socket);
-    if (stream.send(Utils::MessageParser::build("MESSAGE", "SERVEUR", "Message Privé", message, "0"))) {
-        std::cout << "[Admin] Message envoyé à " << username << "\n";
+    if (stream.send(Utils::MessageParser::build("MESSAGE", "SERVER", "Private Message", message, "0"))) {
+        std::cout << "[Admin] Message sent to " << username << "\n";
         LOG_INFO("Admin message to " + username + ": " + message);
     } else {
-        std::cout << "[Admin] Échec de l'envoi\n";
+        std::cout << "[Admin] Failed to send\n";
     }
 }
 
@@ -134,11 +134,11 @@ void AdminCommandHandler::cmdList(const std::vector<std::string>&) {
     auto clients = server->getAllClients();
     
     if (clients.empty()) {
-        std::cout << "[Admin] Aucun client connecté\n";
+        std::cout << "[Admin] No clients connected\n";
         return;
     }
     
-    std::cout << "\n=== Clients connectés (" << clients.size() << ") ===\n";
+    std::cout << "\n=== Connected clients (" << clients.size() << ") ===\n";
     for (const auto& [username, socket] : clients) {
         std::cout << "  - " << username << " (socket: " << socket << ")\n";
     }
@@ -147,17 +147,17 @@ void AdminCommandHandler::cmdList(const std::vector<std::string>&) {
 
 void AdminCommandHandler::cmdKick(const std::vector<std::string>& args) {
     const std::string& username = args[1];
-    if (disconnectUser(username, "Vous avez été déconnecté par l'admin")) {
-        std::cout << "[Admin] Utilisateur '" << username << "' déconnecté\n";
+    if (disconnectUser(username, "You have been disconnected by admin")) {
+        std::cout << "[Admin] User '" << username << "' disconnected\n";
         LOG_INFO("Admin kicked user: " + username);
     }
 }
 
 void AdminCommandHandler::cmdBan(const std::vector<std::string>& args) {
     const std::string& username = args[1];
-    if (disconnectUser(username, "Vous avez été banni par l'admin")) {
+    if (disconnectUser(username, "You have been banned by admin")) {
         server->banlistAdd(username);
-        std::cout << "[Admin] Utilisateur '" << username << "' banni et déconnecté\n";
+        std::cout << "[Admin] User '" << username << "' banned and disconnected\n";
         LOG_INFO("Admin banned user: " + username);
     }
 }
@@ -165,10 +165,10 @@ void AdminCommandHandler::cmdBan(const std::vector<std::string>& args) {
 void AdminCommandHandler::cmdUnban(const std::vector<std::string>& args) {
     const std::string& username = args[1];
     if (server->banlistRemove(username)) {
-        std::cout << "[Admin] Utilisateur '" << username << "' débanni\n";
+        std::cout << "[Admin] User '" << username << "' unbanned\n";
         LOG_INFO("Admin unbanned user: " + username);
     } else {
-        std::cout << "[Admin] Utilisateur '" << username << "' n'est pas dans la banlist\n";
+        std::cout << "[Admin] User '" << username << "' is not in the banlist\n";
     }
 }
 
@@ -190,7 +190,7 @@ void AdminCommandHandler::cmdStats(const std::vector<std::string>&) {
         avgMessagesPerMinute = static_cast<double>(totalMessagesReceived + totalMessagesSent) / (uptime.count() / 60.0);
     }
     
-    std::cout << "\n========== STATISTIQUES ==========\n";
+    std::cout << "\n========== STATISTICS ==========\n";
     std::cout << "Port:              " << cfg.port << "\n";
     std::cout << "Uptime:            " 
               << std::setw(2) << std::setfill('0') << hours << ":"
@@ -199,13 +199,13 @@ void AdminCommandHandler::cmdStats(const std::vector<std::string>&) {
     std::cout << std::setfill(' ');
     std::cout << "-----------------------------------\n";
     std::cout << "Clients:           " << clients.size() << "\n";
-    std::cout << "Messages reçus:    " << totalMessagesReceived << "\n";
-    std::cout << "Messages envoyés:  " << totalMessagesSent << "\n";
+    std::cout << "Messages received: " << totalMessagesReceived << "\n";
+    std::cout << "Messages sent:     " << totalMessagesSent << "\n";
     std::cout << "Messages/min:      " << std::fixed << std::setprecision(2) << avgMessagesPerMinute << "\n";
     std::cout << "===================================\n";
     
     if (!clients.empty()) {
-        std::cout << "\nClients en ligne:\n";
+        std::cout << "\nOnline clients:\n";
         int i = 1;
         for (const auto& [username, socket] : clients) {
             std::cout << "  " << i++ << ". " << username << "\n";
@@ -221,7 +221,7 @@ void AdminCommandHandler::cmdSet(const std::vector<std::string>& args) {
     if (RuntimeConfig::getInstance().set(key, value)) {
         std::cout << "[OK] " << key << " = " << value << "\n";
     } else {
-        std::cout << "[ÉCHEC] Impossible de modifier " << key << "\n";
+        std::cout << "[FAILED] Cannot modify " << key << "\n";
     }
 }
 
@@ -237,11 +237,11 @@ void AdminCommandHandler::cmdConfig(const std::vector<std::string>&) {
 
 void AdminCommandHandler::cmdReset(const std::vector<std::string>&) {
     RuntimeConfig::getInstance().reset();
-    std::cout << "[OK] Configurations réinitialisées\n";
+    std::cout << "[OK] Configurations reset\n";
 }
 
 void AdminCommandHandler::cmdStop(const std::vector<std::string>&) {
-    std::cout << "Arrêt du serveur...\n";
+    std::cout << "Stopping server...\n";
     running = false;
     server->stop();
 }
@@ -252,7 +252,7 @@ bool AdminCommandHandler::disconnectUser(const std::string& username, const std:
     int socket = server->getUserSocket(username);
     
     if (socket <= 0) {
-        std::cout << "[Admin] Utilisateur '" << username << "' non trouvé\n";
+        std::cout << "[Admin] User '" << username << "' not found\n";
         return false;
     }
     

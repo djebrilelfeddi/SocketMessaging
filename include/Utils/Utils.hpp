@@ -1,6 +1,6 @@
 /**
  * @file Utils.hpp
- * @brief Fonctions utilitaires (validation, sanitization, parsing)
+ * @brief Utility functions (validation, sanitization, parsing)
  */
 
 #ifndef UTILS_HPP
@@ -12,59 +12,59 @@
 
 namespace Utils {
     /**
-     * @brief Découpe une chaîne selon un délimiteur
-     * @param s Chaîne à découper
-     * @param delimiter Délimiteur
-     * @return Vecteur des segments
+     * @brief Splits a string by delimiter
+     * @param s String to split
+     * @param delimiter Delimiter
+     * @return Vector of segments
      */
     std::vector<std::string> split(const std::string& s, const std::string& delimiter);
     
     /**
-     * @brief Valide un nom d'utilisateur
-     * @param username Nom d'utilisateur
-     * @return true si valide (non vide, alphanumérique)
+     * @brief Validates a username
+     * @param username Username
+     * @return true if valid (non-empty, alphanumeric)
      */
     bool isValidUsername(const std::string& username);
     
     /**
-     * @brief Valide un sujet de message
-     * @param subject Sujet
-     * @return true si valide (non vide, < MAX_SUBJECT_LENGTH)
+     * @brief Validates a message subject
+     * @param subject Subject
+     * @return true if valid (non-empty, < MAX_SUBJECT_LENGTH)
      */
     bool isValidSubject(const std::string& subject);
     
     /**
-     * @brief Valide un corps de message
-     * @param body Corps du message
-     * @return true si valide (non vide)
+     * @brief Validates a message body
+     * @param body Message body
+     * @return true if valid (non-empty)
      */
     bool isValidBody(const std::string& body);
     
     /**
-     * @brief Nettoie une chaîne (supprime caractères invalides)
-     * @param input Chaîne à nettoyer
-     * @return Chaîne sanitized
+     * @brief Cleans a string (removes invalid characters)
+     * @param input String to clean
+     * @return Sanitized string
      */
     std::string sanitize(const std::string& input);
     
     /**
-     * @brief Convertit un timestamp en string Unix (secondes depuis epoch)
-     * @param tp Timestamp à convertir
-     * @return String représentant le timestamp en secondes
+     * @brief Converts a timestamp to Unix string (seconds since epoch)
+     * @param tp Timestamp to convert
+     * @return String representing the timestamp in seconds
      */
     std::string timestampToUnixString(const std::chrono::system_clock::time_point& tp);
     
     /**
-     * @brief Parse un string Unix vers timestamp
-     * @param str String représentant le timestamp en secondes
+     * @brief Parses a Unix string to timestamp
+     * @param str String representing the timestamp in seconds
      * @return Timestamp
      */
     std::chrono::system_clock::time_point unixStringToTimestamp(const std::string& str);
     
     /**
-     * @brief Formate un timestamp en string lisible
-     * @param tp Timestamp à formater
-     * @return String formaté (sans newline final)
+     * @brief Formats a timestamp to readable string
+     * @param tp Timestamp to format
+     * @return Formatted string (without trailing newline)
      */
     std::string formatTimestamp(const std::chrono::system_clock::time_point& tp);
 }

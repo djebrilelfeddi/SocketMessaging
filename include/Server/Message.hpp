@@ -1,6 +1,6 @@
 /**
  * @file Message.hpp
- * @brief Structure représentant un message entre utilisateurs
+ * @brief Structure representing a message between users
  */
 
 #ifndef MESSAGE_HPP
@@ -11,17 +11,17 @@
 
 /**
  * @struct Message
- * @brief Message envoyé entre utilisateurs du serveur
+ * @brief Message sent between server users
  */
 struct Message {
-    std::string from;      ///< Expéditeur
-    std::string to;        ///< Destinataire
-    std::string subject;   ///< Sujet du message
-    std::string body;      ///< Corps du message
-    std::chrono::system_clock::time_point timestamp; ///< Date d'envoi
+    std::string from;      ///< Sender
+    std::string to;        ///< Recipient
+    std::string subject;   ///< Message subject
+    std::string body;      ///< Message body
+    std::chrono::system_clock::time_point timestamp; ///< Send date
     
     /**
-     * @brief Constructeur par défaut (timestamp = now)
+     * @brief Default constructor (timestamp = now)
      */
     Message() : timestamp(std::chrono::system_clock::now()) {}
 };

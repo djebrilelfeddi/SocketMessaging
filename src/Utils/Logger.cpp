@@ -10,7 +10,7 @@ void Logger::setLogFile(const std::string& filename) {
     
     logFile.open(filename, std::ios::app);
     if (!logFile.is_open()) {
-        std::cerr << "Erreur: Impossible d'ouvrir le fichier de log: " << filename << "\n";
+        std::cerr << "Error: Cannot open log file: " << filename << "\n";
     }
 }
 
@@ -31,7 +31,7 @@ void Logger::log(LogLevel level, const std::string& message) {
         logFile << logEntry << std::endl;
     }
     
-    // Affichage console: INFO et supérieur, ou DEBUG si verbose activé
+    // Console display: INFO and above, or DEBUG if verbose enabled
     if (level != LogLevel::DEBUG || verbose) {
         std::string color = getColorForLevel(level);
         std::cout << color << "[" << timestamp << "] [" << levelStr << "]" << Color::RESET << " " << message << std::endl;

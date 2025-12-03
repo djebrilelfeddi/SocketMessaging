@@ -7,7 +7,7 @@
 #include <cstdlib>
 
 int main(int argc, char* argv[]) {
-    std::string serverIp = "10.192.4.37";
+    std::string serverIp = "127.0.0.1";
     int serverPort = Constants::DEFAULT_PORT;
     
     for (int i = 1; i < argc; i++) {

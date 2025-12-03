@@ -1,6 +1,6 @@
 /**
  * @file CommandHandler.hpp
- * @brief Gestionnaire des commandes clients du serveur
+ * @brief Client command handler for the server
  */
 
 #ifndef COMMAND_HANDLER_HPP
@@ -13,87 +13,87 @@ class Server;
 
 /**
  * @class CommandHandler
- * @brief Traite les commandes reçues des clients
+ * @brief Processes commands received from clients
  * 
- * Gère CONNECT, DISCONNECT, SEND, PING, PONG, LIST_USERS, GET_LOG
+ * Handles CONNECT, DISCONNECT, SEND, PING, PONG, LIST_USERS, GET_LOG
  */
 class CommandHandler {
 public:
     /**
-     * @brief Constructeur
-     * @param server Pointeur vers le serveur
+     * @brief Constructor
+     * @param server Pointer to the server
      */
     explicit CommandHandler(Server* server);
 
     /**
-     * @brief Gère la connexion d'un client
-     * @param parsedData Données parsées [CONNECT, username]
-     * @param socket Socket du client
+     * @brief Handles client connection
+     * @param parsedData Parsed data [CONNECT, username]
+     * @param socket Client socket
      */
     void handleConnect(const std::vector<std::string>& parsedData, int socket);
     
     /**
-     * @brief Gère la déconnexion d'un client
-     * @param parsedData Données parsées [DISCONNECT]
-     * @param socket Socket du client
+     * @brief Handles client disconnection
+     * @param parsedData Parsed data [DISCONNECT]
+     * @param socket Client socket
      */
     void handleDisconnect(const std::vector<std::string>& parsedData, int socket);
     
     /**
-     * @brief Gère l'envoi d'un message
-     * @param parsedData Données parsées [SEND, to, subject, body, timestamp]
-     * @param socket Socket de l'expéditeur
+     * @brief Handles message sending
+     * @param parsedData Parsed data [SEND, to, subject, body, timestamp]
+     * @param socket Sender socket
      */
     void handleSendMessage(const std::vector<std::string>& parsedData, int socket);
     
     /**
-     * @brief Gère un ping
-     * @param parsedData Données parsées [PING]
-     * @param socket Socket du client
+     * @brief Handles a ping
+     * @param parsedData Parsed data [PING]
+     * @param socket Client socket
      */
     void handlePing(const std::vector<std::string>& parsedData, int socket);
     
     /**
-     * @brief Gère un pong (réponse heartbeat)
-     * @param parsedData Données parsées [PONG]
-     * @param socket Socket du client
+     * @brief Handles a pong (heartbeat response)
+     * @param parsedData Parsed data [PONG]
+     * @param socket Client socket
      */
     void handlePong(const std::vector<std::string>& parsedData, int socket);
     
     /**
-     * @brief Gère la demande de liste d'utilisateurs
-     * @param parsedData Données parsées [LIST_USERS]
-     * @param socket Socket du client
+     * @brief Handles user list request
+     * @param parsedData Parsed data [LIST_USERS]
+     * @param socket Client socket
      */
     void handleListUsers(const std::vector<std::string>& parsedData, int socket);
     
     /**
-     * @brief Gère la demande de logs
-     * @param parsedData Données parsées [GET_LOG]
-     * @param socket Socket du client
+     * @brief Handles log request
+     * @param parsedData Parsed data [GET_LOG]
+     * @param socket Client socket
      */
     void handleGetLog(const std::vector<std::string>& parsedData, int socket);    CommandHandler(const CommandHandler&) = delete;
     CommandHandler& operator=(const CommandHandler&) = delete;
 
 private:
     /**
-     * @brief Envoie une réponse brute au client
-     * @param socket Socket du client
-     * @param message Message à envoyer
+     * @brief Sends a raw response to the client
+     * @param socket Client socket
+     * @param message Message to send
      */
     void sendResponse(int socket, const std::string& message);
     
     /**
-     * @brief Envoie une réponse OK au client
-     * @param socket Socket du client
-     * @param message Message optionnel (vide par défaut)
+     * @brief Sends an OK response to the client
+     * @param socket Client socket
+     * @param message Optional message (empty by default)
      */
     void sendOK(int socket, const std::string& message = "");
     
     /**
-     * @brief Envoie une réponse ERROR au client
-     * @param socket Socket du client
-     * @param error Message d'erreur
+     * @brief Sends an ERROR response to the client
+     * @param socket Client socket
+     * @param error Error message
      */
     void sendError(int socket, const std::string& error);
     

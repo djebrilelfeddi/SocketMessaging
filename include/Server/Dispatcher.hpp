@@ -1,6 +1,6 @@
 /**
  * @file Dispatcher.hpp
- * @brief Dispatcher de messages avec queue et traitement par blocs
+ * @brief Message dispatcher with queue and batch processing
  */
 
 #ifndef DISPATCHER_HPP
@@ -17,33 +17,33 @@ class Server;
 
 /**
  * @class Dispatcher
- * @brief Gère la file d'attente et l'envoi des messages
+ * @brief Manages message queue and delivery
  * 
- * Thread-safe. Traite les messages par blocs pour optimiser les performances.
+ * Thread-safe. Processes messages in batches for optimized performance.
  */
 class Dispatcher {
 public:
     Dispatcher() = delete;
     
     /**
-     * @brief Constructeur
-     * @param attributedServer Pointeur vers le serveur
+     * @brief Constructor
+     * @param attributedServer Pointer to the server
      */
     explicit Dispatcher(Server* attributedServer);
     
     /**
-     * @brief Ajoute un message à la queue
-     * @param msg Message à envoyer
-     * @return true si ajouté, false si queue pleine
+     * @brief Adds a message to the queue
+     * @param msg Message to send
+     * @return true if added, false if queue full
      */
     bool queueMessage(const Message& msg);
     
     /**
-     * @brief Boucle principale de traitement (bloquante)
+     * @brief Main processing loop (blocking)
      */
     void run();
       /**
-     * @brief Arrête le dispatcher proprement
+     * @brief Stops the dispatcher gracefully
      */
     void stop();
 

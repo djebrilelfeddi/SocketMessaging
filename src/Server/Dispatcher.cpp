@@ -11,7 +11,7 @@ Dispatcher::Dispatcher(Server* attributedServer) : attributedServer(attributedSe
     config.startedTimestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()
     );
-    LOG_INFO("Dispatcher créé");
+    LOG_INFO("Dispatcher created");
 }
 
 bool Dispatcher::queueMessage(const Message& msg) {
@@ -20,42 +20,42 @@ bool Dispatcher::queueMessage(const Message& msg) {
     if (messages.size() >= static_cast<size_t>(config.maxStoredMessages)) {
         switch (config.queuePolicy) {
             case QueueFullPolicy::REJECT:
-                LOG_WARNING("Queue pleine - message rejeté (policy: REJECT)");
+                LOG_WARNING("Queue full - message rejected (policy: REJECT)");
                 return false;
                 
             case QueueFullPolicy::DROP_OLDEST:
                 messages.pop(); 
-                LOG_WARNING("Queue pleine - message le plus ancien supprimé (policy: DROP_OLDEST)");
+                LOG_WARNING("Queue full - oldest message dropped (policy: DROP_OLDEST)");
                 break;
                 
             case QueueFullPolicy::DROP_NEWEST:
-                LOG_WARNING("Queue pleine - nouveau message ignoré (policy: DROP_NEWEST)");
-                return false;  // Ignore le nouveau message
+                LOG_WARNING("Queue full - new message ignored (policy: DROP_NEWEST)");
+                return false;  // Ignore the new message
         }
     }
     
     messages.push(msg);
-    cv.notify_one();  // Réveille le thread du dispatcher
+    cv.notify_one();  // Wake up dispatcher thread
     return true;
 }
 
 void Dispatcher::run() {
-    LOG_INFO("Dispatcher démarré");
+    LOG_INFO("Dispatcher started");
     
     while (running && attributedServer->getStatus() == SERVER_STATUS::RUNNING) {
         std::unique_lock<std::mutex> lock(messagesMutex);
         
-        // Attend qu'un message arrive ou que le dispatcher s'arrête
+        // Wait for a message to arrive or for the dispatcher to stop
         cv.wait(lock, [this] { 
             return !messages.empty() || !running || attributedServer->getStatus() != SERVER_STATUS::RUNNING;
         });
         
-        // Vérifie si on doit s'arrêter
+        // Check if we should stop
         if (!running || attributedServer->getStatus() != SERVER_STATUS::RUNNING) {
             break;
         }
         
-        // Vérifie s'il y a un message (pourrait être faux si réveillé par stop)
+        // Check if there's a message (could be false if woken up by stop)
         if (messages.empty()) {
             continue;
         }
@@ -63,20 +63,20 @@ void Dispatcher::run() {
         Message msg = messages.front();
         messages.pop();
         
-        lock.unlock();  // Libère le mutex pendant le traitement
+        lock.unlock();  // Release mutex during processing
         
-        // Délai entre messages si configuré
+        // Delay between messages if configured
         if (config.delayBetweenMessages > 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds(config.delayBetweenMessages));
         }
         
         int recipientSocket = attributedServer->getUserSocket(msg.to);
         
-        // Erreur 6: Le destinataire vient de se déconnecter
+        // Error 6: Recipient just disconnected
         if (recipientSocket <= 0) {
-            LOG_WARNING("Destinataire non trouvé ou déconnecté: " + msg.to + " (message de " + msg.from + ")");
+            LOG_WARNING("Recipient not found or disconnected: " + msg.to + " (message from " + msg.from + ")");
             
-            // Notifier l'expéditeur que le message n'a pas pu être délivré
+            // Notify sender that message could not be delivered
             int senderSocket = attributedServer->getUserSocket(msg.from);
             if (senderSocket > 0) {
                 Network::NetworkStream senderStream(senderSocket);
@@ -102,12 +102,12 @@ void Dispatcher::run() {
         
         if (stream.send(formattedMessage)) {
             attributedServer->incrementMessagesSent();
-            LOG_DEBUG("Message dispatché de " + msg.from + " vers " + msg.to);
+            LOG_DEBUG("Message dispatched from " + msg.from + " to " + msg.to);
         } else {
-            LOG_ERROR("Échec d'envoi du message à " + msg.to);
+            LOG_ERROR("Failed to send message to " + msg.to);
         }
     }
-      LOG_INFO("Dispatcher arrêté");
+      LOG_INFO("Dispatcher stopped");
 }
 
 void Dispatcher::stop() {
@@ -115,6 +115,6 @@ void Dispatcher::stop() {
         std::lock_guard<std::mutex> lock(messagesMutex);
         running = false;
     }
-    cv.notify_all();  // Réveille le thread pour qu'il se termine
-    LOG_INFO("Arrêt du dispatcher demandé");
+    cv.notify_all();  // Wake up thread so it can terminate
+    LOG_INFO("Dispatcher stop requested");
 }

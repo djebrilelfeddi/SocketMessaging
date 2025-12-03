@@ -1,6 +1,6 @@
 /**
  * @file AdminCommandHandler.hpp
- * @brief Gestionnaire de commandes administrateur du serveur
+ * @brief Server administrator command handler
  */
 
 #ifndef ADMIN_COMMAND_HANDLER_HPP
@@ -16,18 +16,18 @@ class Server;
 
 /**
  * @struct AdminCommand
- * @brief Définition d'une commande admin
+ * @brief Definition of an admin command
  */
 struct AdminCommand {
     std::function<void(const std::vector<std::string>&)> handler;
     std::string usage;
     std::string description;
-    int minArgs = 0;  // Nombre minimum d'arguments (hors commande)
+    int minArgs = 0;  // Minimum number of arguments (excluding command)
 };
 
 /**
  * @class AdminCommandHandler
- * @brief Gère la console admin et les commandes d'administration
+ * @brief Manages the admin console and administration commands
  */
 class AdminCommandHandler {
 public:
@@ -37,7 +37,7 @@ public:
     AdminCommandHandler& operator=(const AdminCommandHandler&) = delete;
     
     /**
-     * @brief Boucle principale de la console admin (bloquante)
+     * @brief Main admin console loop (blocking)
      */
     void commandLoop();
 

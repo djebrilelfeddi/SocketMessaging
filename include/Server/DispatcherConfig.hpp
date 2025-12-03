@@ -1,6 +1,6 @@
 /**
  * @file DispatcherConfig.hpp
- * @brief Configuration du dispatcher de messages
+ * @brief Message dispatcher configuration
  */
 
 #ifndef DISPATCHER_CONFIG_HPP
@@ -10,23 +10,23 @@
 
 /**
  * @enum QueueFullPolicy
- * @brief Politique de gestion de la queue pleine
+ * @brief Policy for handling full queue
  */
 enum class QueueFullPolicy {
-    REJECT,      ///< Rejeter les nouveaux messages
-    DROP_OLDEST, ///< Supprimer les plus anciens
-    DROP_NEWEST  ///< Supprimer les plus récents
+    REJECT,      ///< Reject new messages
+    DROP_OLDEST, ///< Remove oldest messages
+    DROP_NEWEST  ///< Remove newest messages
 };
 
 /**
  * @struct DispatcherConfig
- * @brief Configuration du dispatcher
+ * @brief Dispatcher configuration
  */
 struct DispatcherConfig {
-    int delayBetweenMessages = 10;              ///< Délai entre messages (ms)
-    std::chrono::milliseconds startedTimestamp; ///< Timestamp de démarrage
-    int maxStoredMessages = 10000;              ///< Taille max queue
-    QueueFullPolicy queuePolicy = QueueFullPolicy::REJECT; ///< Politique queue pleine
+    int delayBetweenMessages = 10;              ///< Delay between messages (ms)
+    std::chrono::milliseconds startedTimestamp; ///< Startup timestamp
+    int maxStoredMessages = 10000;              ///< Max queue size
+    QueueFullPolicy queuePolicy = QueueFullPolicy::REJECT; ///< Full queue policy
 };
 
 #endif

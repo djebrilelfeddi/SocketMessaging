@@ -1,6 +1,6 @@
 /**
  * @file Server.hpp
- * @brief Serveur TCP de messagerie multi-clients
+ * @brief Multi-client TCP messaging server
  */
 
 #ifndef SERVER_HPP
@@ -27,12 +27,12 @@ class CommandHandler;
 
 /**
  * @struct ClientInfo
- * @brief Informations complètes d'un client connecté
+ * @brief Complete information of a connected client
  */
 struct ClientInfo {
     int socket; //File descriptor
-    std::chrono::steady_clock::time_point lastPong; //Dernier PONG reçu
-    bool waitingForPong = false;//En attente de PONG
+    std::chrono::steady_clock::time_point lastPong; //Last PONG received
+    bool waitingForPong = false;//Waiting for PONG
     
     ClientInfo() = default;
     explicit ClientInfo(int s) : socket(s), lastPong(std::chrono::steady_clock::now()) {}
@@ -40,170 +40,170 @@ struct ClientInfo {
 
 /**
  * @class Server
- * @brief Serveur de messagerie avec gestion multi-clients et commandes admin
+ * @brief Messaging server with multi-client management and admin commands
  * 
- * Thread-safe. Supporte heartbeat, statistiques, kick, broadcast.
+ * Thread-safe. Supports heartbeat, statistics, kick, broadcast.
  */
 class Server {
 public:
     using CommandHandler = std::function<void(Server*, const std::vector<std::string>&, int)>;
 
     /**
-     * @brief Constructeur par défaut
+     * @brief Default constructor
      */
     Server();
     
     /**
-     * @brief Constructeur avec configuration
-     * @param configuration Configuration du serveur
+     * @brief Constructor with configuration
+     * @param configuration Server configuration
      */
     explicit Server(const ServerConfig& configuration);
     
     /**
-     * @brief Destructeur
+     * @brief Destructor
      */
     ~Server();
 
     /**
-     * @brief Démarre le serveur
-     * @param PORT Port d'écoute
-     * @param MAX_CONNECTIONS Nombre max de connexions (0 = illimité)
-     * @return 0 si succès
+     * @brief Starts the server
+     * @param PORT Listening port
+     * @param MAX_CONNECTIONS Max connections (0 = unlimited)
+     * @return 0 on success
      */
     int start(int PORT, int MAX_CONNECTIONS = 0);
     
     /**
-     * @brief Arrête le serveur et ferme toutes les connexions
+     * @brief Stops the server and closes all connections
      */
     void stop();
     
     /**
-     * @brief Exécute une commande client
-     * @param commandName Nom de la commande
-     * @param args Arguments de la commande
-     * @param socket Socket du client
+     * @brief Executes a client command
+     * @param commandName Command name
+     * @param args Command arguments
+     * @param socket Client socket
      */
     void executeCommand(const std::string& commandName, 
                        const std::vector<std::string>& args, 
                        int socket);
     
     /**
-     * @brief Obtient le statut du serveur
-     * @return Statut actuel (ON/OFF)
+     * @brief Gets the server status
+     * @return Current status (ON/OFF)
      */
     SERVER_STATUS getStatus() const { return status; }
     
     /**
-     * @brief Récupère le socket d'un utilisateur
-     * @param username Nom d'utilisateur
-     * @return File descriptor du socket (-1 si non trouvé)
+     * @brief Gets a user's socket
+     * @param username Username
+     * @return Socket file descriptor (-1 if not found)
      */
     int getUserSocket(const std::string& username);
     
     /**
-     * @brief Compte les clients connectés
-     * @return Nombre de clients
+     * @brief Counts connected clients
+     * @return Number of clients
      */
     int getClientCount() const;
 
     /**
-     * @brief Vérifie si un nom d'utilisateur est déjà pris
-     * @param username Nom à vérifier
-     * @return true si déjà utilisé
+     * @brief Checks if a username is already taken
+     * @param username Username to check
+     * @return true if already used
      */
     bool isUsernameTaken(const std::string& username);
     
     /**
-     * @brief Enregistre un nouveau client
-     * @param username Nom du client
-     * @param socket Socket du client
+     * @brief Registers a new client
+     * @param username Client name
+     * @param socket Client socket
      */
     void registerClient(const std::string& username, int socket);
     
     /**
-     * @brief Désenregistre un client
-     * @param username Nom du client
+     * @brief Unregisters a client
+     * @param username Client name
      */
     void unregisterClient(const std::string& username);
     
     /**
-     * @brief Met à jour le timestamp de dernier pong d'un client
-     * @param username Nom du client
+     * @brief Updates a client's last pong timestamp
+     * @param username Client name
      */
     void updateClientPong(const std::string& username);
     
     /**
-     * @brief Obtient le nom d'utilisateur par socket
-     * @param socket Socket du client
-     * @return Nom d'utilisateur (vide si non trouvé)
+     * @brief Gets username by socket
+     * @param socket Client socket
+     * @return Username (empty if not found)
      */
     std::string getUsernameBySocket(int socket);
 
 
 
     /**
-     * @brief Obtient le dispatcher
-     * @return Pointeur vers le dispatcher
+     * @brief Gets the dispatcher
+     * @return Pointer to the dispatcher
      */
     Dispatcher* getDispatcher() { return dispatcher.get(); }
     
     /**
-     * @brief Incrémente le compteur de messages envoyés
+     * @brief Increments sent messages counter
      */
     void incrementMessagesSent() { ++totalMessagesSent; }
     
     /**
-     * @brief Incrémente le compteur de messages reçus
+     * @brief Increments received messages counter
      */
     void incrementMessagesReceived() { ++totalMessagesReceived; }
     
     /**
-     * @brief Obtient tous les clients connectés
+     * @brief Gets all connected clients
      * @return Map username -> socket
      */
     std::unordered_map<std::string, int> getAllClients();
     
     /**
-     * @brief Obtient le timestamp de démarrage
-     * @return Point dans le temps du démarrage
+     * @brief Gets the startup timestamp
+     * @return Time point of startup
      */
     std::chrono::steady_clock::time_point getStartTime() const { return startTime; }
     
     /**
-     * @brief Obtient le nombre total de messages reçus
-     * @return Nombre de messages reçus
+     * @brief Gets total received messages count
+     * @return Number of received messages
      */
     size_t getTotalMessagesReceived() const { return totalMessagesReceived; }
     
     /**
-     * @brief Obtient le nombre total de messages envoyés
-     * @return Nombre de messages envoyés
+     * @brief Gets total sent messages count
+     * @return Number of sent messages
      */
     size_t getTotalMessagesSent() const { return totalMessagesSent; }
     
     /**
-     * @brief Obtient la configuration du serveur
-     * @return Configuration actuelle
+     * @brief Gets the server configuration
+     * @return Current configuration
      */
     const ServerConfig& getConfig() const { return config; }
 
     /**
-     * @brief Ajoute un utilisateur à la liste de bannissement
-     * @param username Utilisateur à ajouter
+     * @brief Adds a user to the ban list
+     * @param username User to add
      */
     void banlistAdd(const std::string& username);
     
     /**
-     * @brief Retire un utilisateur de la liste de bannissement
-     * @param username Utilisateur à retirer
-     * @return true si l'utilisateur a été retiré
+     * @brief Removes a user from the ban list
+     * @param username User to remove
+     * @return true if the user was removed
      */
     bool banlistRemove(const std::string& username);
     
     /**
-     * @brief Vérifie si un utilisateur est banni
-     * @param username Utilisateur à vérifier
-     * @return true si l'utilisateur est banni
+     * @brief Checks if a user is banned
+     * @param username User to check
+     * @return true if the user is banned
      */
     bool isBanned(const std::string& username) const;
 
@@ -218,18 +218,18 @@ private:
     void checkClientTimeouts();
     
     /**
-     * @brief Charge la liste des utilisateurs bannis depuis le fichier
+     * @brief Loads banned users list from file
      */
     void loadBanlist();
     
     /**
-     * @brief Sauvegarde la liste des utilisateurs bannis dans le fichier
+     * @brief Saves banned users list to file
      */
     void saveBanlist();    
     
     ServerConfig config{.socket = 0, .address = {}, .port = 8080, .max_connections = 0};
 
-    // Clients connectés : username + infos complètes (socket + heartbeat)
+    // Connected clients: username + complete info (socket + heartbeat)
     std::unordered_map<std::string, ClientInfo> clients;
     std::unordered_set<std::string> bannedUsers;
     std::unordered_map<std::string, CommandHandler> commands;

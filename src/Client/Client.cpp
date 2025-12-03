@@ -1,6 +1,6 @@
 /**
  * @file Client.cpp
- * @brief Client TCP simplifié
+ * @brief Simplified TCP Client
  */
 
 #include "Client/Client.hpp"
@@ -13,7 +13,7 @@
 
 Client::Client(const std::string& serverAddress, int serverPort)
     : serverAddress(serverAddress), serverPort(serverPort) {
-    LOG_INFO("Client créé pour " + serverAddress + ":" + std::to_string(serverPort));
+    LOG_INFO("Client created for " + serverAddress + ":" + std::to_string(serverPort));
 }
 
 Client::~Client() {
@@ -27,13 +27,13 @@ bool Client::connect(const std::string& username) {
 
 bool Client::connect(const std::string& username, std::string& outError) {
     if (isConnected) {
-        outError = "Déjà connecté";
+        outError = "Already connected";
         return false;
     }
     
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
-        outError = "Échec création socket";
+        outError = "Socket creation failed";
         LOG_ERROR(outError);
         return false;
     }
@@ -44,14 +44,14 @@ bool Client::connect(const std::string& username, std::string& outError) {
     serverAddr.sin_port = htons(serverPort);
     
     if (inet_pton(AF_INET, serverAddress.c_str(), &serverAddr.sin_addr) <= 0) {
-        outError = "Adresse invalide: " + serverAddress;
+        outError = "Invalid address: " + serverAddress;
         LOG_ERROR(outError);
         clientSocket.close();
         return false;
     }
     
     if (::connect(clientSocket.get(), (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        outError = "Impossible de se connecter au serveur";
+        outError = "Cannot connect to server";
         LOG_ERROR(outError);
         clientSocket.close();
         return false;
@@ -59,21 +59,21 @@ bool Client::connect(const std::string& username, std::string& outError) {
     
     Network::NetworkStream stream(clientSocket.get());
     if (!stream.send(Utils::MessageParser::build("CONNECT", username))) {
-        outError = "Échec envoi requête de connexion";
+        outError = "Failed to send connection request";
         clientSocket.close();
         return false;
     }
     
     auto response = stream.receive();
     if (!response) {
-        outError = "Pas de réponse du serveur";
+        outError = "No response from server";
         clientSocket.close();
         return false;
     }
     
     auto parsed = Utils::MessageParser::parse(*response);
     if (!parsed.isValid || parsed.command != "OK") {
-        outError = (parsed.isValid && parsed.command == "ERROR" && parsed.argCount() > 0) ? parsed.arg(0) : "Connexion refusée";
+        outError = (parsed.isValid && parsed.command == "ERROR" && parsed.argCount() > 0) ? parsed.arg(0) : "Connection refused";
         clientSocket.close();
         return false;
     }
@@ -83,7 +83,7 @@ bool Client::connect(const std::string& username, std::string& outError) {
     messageHandler = std::make_unique<MessageHandler>(clientSocket.get());
     messageHandler->setCurrentUsername(username);
     
-    LOG_CONNECT("Connecté en tant que " + username);
+    LOG_CONNECT("Connected as " + username);
     return true;
 }
 
@@ -102,13 +102,13 @@ void Client::disconnect() {
     clientSocket.close();
     isConnected = false;
     messageHandler.reset();
-    LOG_DISCONNECT("Déconnecté");
+    LOG_DISCONNECT("Disconnected");
 }
 
 void Client::startListening(MessageHandler::EventCallback onEvent) {
     if (!isConnected || !messageHandler) return;
     
-    //LOG_INFO("Démarrage écoute");
+    //LOG_INFO("Starting listening");
     listenerThread = std::thread([this, onEvent]() {
         messageHandler->listen(onEvent);
     });

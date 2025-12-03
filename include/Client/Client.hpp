@@ -1,6 +1,6 @@
 /**
  * @file Client.hpp
- * @brief Client TCP de messagerie
+ * @brief TCP messaging client
  */
 
 #ifndef CLIENT_HPP
@@ -15,7 +15,7 @@
 
 /**
  * @class Client
- * @brief Client de messagerie avec connexion au serveur
+ * @brief Messaging client with server connection
  */
 class Client {
 public:
@@ -26,13 +26,13 @@ public:
     Client& operator=(const Client&) = delete;
     
     /**
-     * @brief Connecte au serveur avec le nom d'utilisateur
-     * @param username Nom d'utilisateur
-     * @param outError Message d'erreur si échec (optionnel)
-     * @return true si succès
+     * @brief Connects to the server with username
+     * @param username Username
+     * @param outError Error message if failed (optional)
+     * @return true if successful
      */
     bool connect(const std::string& username, std::string& outError);
-    bool connect(const std::string& username); // Surcharge sans message d'erreur
+    bool connect(const std::string& username); // Overload without error message
     
     void disconnect();
     void startListening(MessageHandler::EventCallback onEvent);

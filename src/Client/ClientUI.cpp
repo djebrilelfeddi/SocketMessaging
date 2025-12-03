@@ -1,6 +1,6 @@
 /**
  * @file ClientUI.cpp
- * @brief Interface utilisateur du client (tout l'affichage est ici)
+ * @brief Client user interface (all display logic is here)
  */
 
 #include "Client/ClientUI.hpp"
@@ -33,9 +33,9 @@ void ClientUI::clearScreen() {
 void ClientUI::printHeader() {
     clearScreen();
     std::cout << Color::BRIGHT_CYAN << "========================================\n";
-    std::cout << "   CLIENT DE MESSAGERIE\n";
+    std::cout << "   MESSAGING CLIENT\n";
     std::cout << "========================================" << Color::RESET << "\n";
-    std::cout << "Serveur: " << serverIp << ":" << serverPort << "\n\n";
+    std::cout << "Server: " << serverIp << ":" << serverPort << "\n\n";
 }
 
 void ClientUI::print(const std::string& msg) {
@@ -43,7 +43,7 @@ void ClientUI::print(const std::string& msg) {
 }
 
 void ClientUI::printError(const std::string& msg) {
-    std::cout << Color::BRIGHT_RED << "[ERREUR] " << Color::RESET << msg << "\n";
+    std::cout << Color::BRIGHT_RED << "[ERROR] " << Color::RESET << msg << "\n";
 }
 
 void ClientUI::printSuccess(const std::string& msg) {
@@ -52,30 +52,30 @@ void ClientUI::printSuccess(const std::string& msg) {
 
 void ClientUI::printMenu() {
     std::cout << "\n" << Color::BRIGHT_CYAN << client.getCurrentUsername() << Color::RESET 
-              << " - Connecté à " << Color::CYAN << serverIp << ":" << serverPort << Color::RESET << "\n";
+              << " - Connected to " << Color::CYAN << serverIp << ":" << serverPort << Color::RESET << "\n";
     std::cout << "\n" << Color::BRIGHT_MAGENTA << "=== MENU ===" << Color::RESET << "\n";
-    std::cout << "1. Envoyer un message\n";
-    std::cout << "2. Messages non lus\n";
-    std::cout << "3. Lire un message\n";
-    std::cout << "4. Utilisateurs en ligne\n";
+    std::cout << "1. Send a message\n";
+    std::cout << "2. Unread messages\n";
+    std::cout << "3. Read a message\n";
+    std::cout << "4. Online users\n";
     std::cout << "5. Broadcast\n";
-    std::cout << "6. Logs serveur\n";
-    std::cout << Color::BRIGHT_RED << "7. Quitter" << Color::RESET << "\n";
+    std::cout << "6. Server logs\n";
+    std::cout << Color::BRIGHT_RED << "7. Quit" << Color::RESET << "\n";
     std::cout << Color::YELLOW << "$ " << Color::RESET;
 }
 
 void ClientUI::promptAndWait() {
-    std::cout << "\n" << Color::GRAY << "Entrée pour continuer..." << Color::RESET;
+    std::cout << "\n" << Color::GRAY << "Press Enter to continue..." << Color::RESET;
     std::cin.get();
     clearScreen();
 }
 
 void ClientUI::printUserList(const std::string& userListData) {
     auto users = Utils::split(userListData, ",");
-    std::cout << Color::BRIGHT_GREEN << "=== Utilisateurs (" << users.size() << ") ===" << Color::RESET << "\n";
+    std::cout << Color::BRIGHT_GREEN << "=== Users (" << users.size() << ") ===" << Color::RESET << "\n";
     for (const auto& user : users) {
         if (user == client.getCurrentUsername()) {
-            std::cout << "  " << Color::BRIGHT_YELLOW << "* " << user << " (Vous)" << Color::RESET << "\n";
+            std::cout << "  " << Color::BRIGHT_YELLOW << "* " << user << " (You)" << Color::RESET << "\n";
         } else {
             std::cout << "  " << user << "\n";
         }
@@ -88,21 +88,21 @@ bool ClientUI::promptAndConnect() {
     printHeader();
     
     std::string username;
-    std::cout << Color::YELLOW << "Nom d'utilisateur: " << Color::RESET;
+    std::cout << Color::YELLOW << "Username: " << Color::RESET;
     std::getline(std::cin, username);
     
     if (!Utils::isValidUsername(username)) {
-        printError("Nom invalide (alphanumérique et underscore, max 16 caractères)");
+        printError("Invalid name (alphanumeric and underscore, max 16 characters)");
         return false;
     }
     
     std::string errorMsg;
     if (!client.connect(username, errorMsg)) {
-        printError(errorMsg.empty() ? "Connexion échouée" : errorMsg);
+        printError(errorMsg.empty() ? "Connection failed" : errorMsg);
         return false;
     }
     
-    printSuccess("Connecté!");
+    printSuccess("Connected!");
     return true;
 }
 
@@ -116,20 +116,20 @@ void ClientUI::cmdSendMessage(bool broadcast) {
     
     if (broadcast) {
         to = "all";
-        std::cout << Color::BRIGHT_MAGENTA << "Envoi à tous" << Color::RESET << "\n";
+        std::cout << Color::BRIGHT_MAGENTA << "Sending to all" << Color::RESET << "\n";
     } else {
-        std::cout << "Destinataire: ";
+        std::cout << "Recipient: ";
         std::getline(std::cin, to);
     }
     
-    std::cout << "Sujet: ";
+    std::cout << "Subject: ";
     std::getline(std::cin, subject);
     
     std::cout << "Message: ";
     std::getline(std::cin, body);
     
     if (!handler->sendMessage(to, subject, body)) {
-        printError("Échec de l'envoi");
+        printError("Failed to send");
     }
 }
 
@@ -140,13 +140,13 @@ void ClientUI::cmdListUnread() {
     auto messages = handler->getUnreadMessages();
     
     if (messages.empty()) {
-        std::cout << Color::YELLOW << "Aucun message non lu." << Color::RESET << "\n";
+        std::cout << Color::YELLOW << "No unread messages." << Color::RESET << "\n";
         return;
     }
     
-    std::cout << "\n" << Color::BRIGHT_MAGENTA << "=== Messages non lus (" << messages.size() << ") ===" << Color::RESET << "\n";
+    std::cout << "\n" << Color::BRIGHT_MAGENTA << "=== Unread messages (" << messages.size() << ") ===" << Color::RESET << "\n";
     for (const auto& msg : messages) {
-        std::cout << Color::CYAN << "[" << msg.index << "]" << Color::RESET << " De: " << std::setw(12) << msg.from << " | " << msg.subject << "\n";
+        std::cout << Color::CYAN << "[" << msg.index << "]" << Color::RESET << " From: " << std::setw(12) << msg.from << " | " << msg.subject << "\n";
     }
 }
 
@@ -161,22 +161,22 @@ void ClientUI::cmdReadMessage() {
     
     ReceivedMessage msg;
     if (!handler->readMessageByIndex(index, msg)) {
-        printError("Message introuvable");
+        printError("Message not found");
         return;
     }
     
     std::cout << "\n" << Color::BRIGHT_CYAN << "=== Message #" << index << " ===" << Color::RESET << "\n";
-    std::cout << "De: " << msg.from << "\n";
-    std::cout << "Sujet: " << msg.subject << "\n";
+    std::cout << "From: " << msg.from << "\n";
+    std::cout << "Subject: " << msg.subject << "\n";
     std::cout << "Date: " << Utils::formatTimestamp(msg.timestamp) << "\n";
     std::cout << "---\n" << msg.body << "\n";
     
-    std::cout << "\n[r] Répondre | [Entrée] Retour: ";
+    std::cout << "\n[r] Reply | [Enter] Back: ";
     std::string action;
     std::getline(std::cin, action);
     
     if (action == "r" || action == "R") {
-        std::cout << "Réponse: ";
+        std::cout << "Reply: ";
         std::string reply;
         std::getline(std::cin, reply);
         if (!reply.empty()) {
@@ -189,7 +189,7 @@ void ClientUI::cmdListUsers() {
     auto* handler = client.getMessageHandler();
     if (handler) {
         handler->sendCommand(Utils::MessageParser::build("LIST_USERS"));
-        // Attendre la réponse du serveur
+        // Wait for server response
         waitForResponse(ServerEvent::USERS);
     }
 }
@@ -198,26 +198,26 @@ void ClientUI::cmdGetLog() {
     auto* handler = client.getMessageHandler();
     if (handler) {
         handler->sendCommand(Utils::MessageParser::build("GET_LOG"));
-        // Attendre la réponse du serveur
+        // Wait for server response
         waitForResponse(ServerEvent::LOG);
     }
 }
 
-// === Gestion des événements ===
+// === Event handling ===
 
 void ClientUI::waitForResponse(ServerEvent expectedType, int timeoutMs) {
-    // Temporairement accepter les événements directs pour affichage
+    // Temporarily accept direct events for display
     inCommand.store(false);
     
     auto start = std::chrono::steady_clock::now();
     while (true) {
-        // Vérifier le timeout
+        // Check timeout
         auto elapsed = std::chrono::steady_clock::now() - start;
         if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() > timeoutMs) {
             break;
         }
         
-        // Vérifier si on a reçu la réponse attendue
+        // Check if we received the expected response
         {
             std::lock_guard<std::mutex> lock(eventQueueMutex);
             if (lastReceivedEvent == expectedType) {
@@ -229,22 +229,22 @@ void ClientUI::waitForResponse(ServerEvent expectedType, int timeoutMs) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     
-    // Remettre en mode commande
+    // Return to command mode
     inCommand.store(true);
 }
 
 void ClientUI::onServerEvent(const ServerEventData& event) {
-    // Toujours mettre en file d'attente si on attend une entrée utilisateur
+    // Always queue if waiting for user input
     if (inCommand.load()) {
         std::lock_guard<std::mutex> lock(eventQueueMutex);
         if (event.type != ServerEvent::OK) pendingEvents.push(event);
         return;
     }
     
-    // Affichage immédiat seulement quand on est au menu (après affichage du menu)
+    // Immediate display only when at menu (after menu display)
     displayEvent(event);
     
-    // Enregistrer le type pour waitForResponse
+    // Record type for waitForResponse
     {
         std::lock_guard<std::mutex> lock(eventQueueMutex);
         lastReceivedEvent = event.type;
@@ -254,14 +254,14 @@ void ClientUI::onServerEvent(const ServerEventData& event) {
 void ClientUI::displayEvent(const ServerEventData& event) {
     switch (event.type) {
         case ServerEvent::MESSAGE:
-            std::cout << "\n" << Color::BRIGHT_YELLOW << "Nouveau Message: " 
+            std::cout << "\n" << Color::BRIGHT_YELLOW << "New Message: " 
                       << event.args[0] << " - " << event.args[1] << Color::RESET << "\n$ " << std::flush;
             break;
         case ServerEvent::OK:
             std::cout << "\n" << Color::BRIGHT_GREEN << "[OK] " << Color::RESET << event.data << "\n$ " << std::flush;
             break;
         case ServerEvent::ERROR_MSG:
-            std::cout << "\n" << Color::BRIGHT_RED << "[ERREUR] " << Color::RESET << event.data << "\n$ " << std::flush;
+            std::cout << "\n" << Color::BRIGHT_RED << "[ERROR] " << Color::RESET << event.data << "\n$ " << std::flush;
             break;
         case ServerEvent::USERS:
             std::cout << "\n";
@@ -282,16 +282,16 @@ void ClientUI::displayPendingEvents() {
     
     if (pendingEvents.empty()) return;
     
-    std::cout << "\n" << Color::GRAY << "--- Pendant que vous étiez occupé ---" << Color::RESET << "\n";
+    std::cout << "\n" << Color::GRAY << "--- While you were busy ---" << Color::RESET << "\n";
     while (!pendingEvents.empty()) {
         auto& event = pendingEvents.front();
         switch (event.type) {
             case ServerEvent::MESSAGE:
-                std::cout << Color::BRIGHT_GREEN << "Nouveau message de " 
+                std::cout << Color::BRIGHT_GREEN << "New message from " 
                           << event.args[0] << " - " << event.args[1] << Color::RESET << "\n";
                 break;
             case ServerEvent::ERROR_MSG:
-                std::cout << Color::BRIGHT_RED << "[ERREUR] " << Color::RESET << event.data << "\n";
+                std::cout << Color::BRIGHT_RED << "[ERROR] " << Color::RESET << event.data << "\n";
                 break;
             case ServerEvent::USERS:
                 printUserList(event.data);
@@ -307,7 +307,7 @@ void ClientUI::displayPendingEvents() {
     }
 }
 
-// === Boucle principale ===
+// === Main loop ===
 
 bool ClientUI::run() {
     if (!promptAndConnect()) {
@@ -316,26 +316,26 @@ bool ClientUI::run() {
     
     clearScreen();
     
-    // Démarrer l'écoute avec callback vers l'UI
+    // Start listening with callback to UI
     client.startListening([this](const ServerEventData& event) {
         onServerEvent(event);
     });
     
     bool running = true;
     while (running) {
-        // Afficher le menu puis libérer pour recevoir les événements
+        // Display menu then release to receive events
         printMenu();
         inCommand.store(false);
         
         std::string choice;
         std::getline(std::cin, choice);
         
-        // Bloquer les événements pendant le traitement
+        // Block events during processing
         inCommand.store(true);
         clearScreen();
         
         if (choice == "7") {
-            std::cout << Color::YELLOW << "Déconnexion..." << Color::RESET << "\n";
+            std::cout << Color::YELLOW << "Disconnecting..." << Color::RESET << "\n";
             running = false;
         } else {
             auto it = commands.find(choice);
@@ -344,7 +344,7 @@ bool ClientUI::run() {
                 promptAndWait();
                 displayPendingEvents();
             } else {
-                printError("Choix invalide");
+                printError("Invalid choice");
                 promptAndWait();
             }
         }

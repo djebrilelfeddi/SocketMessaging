@@ -1,6 +1,6 @@
 /**
  * @file ServerConfig.hpp
- * @brief Configuration du serveur TCP
+ * @brief TCP server configuration
  */
 
 #ifndef SERVER_CONFIG_HPP
@@ -10,24 +10,24 @@
 
 /**
  * @enum SERVER_STATUS
- * @brief États possibles du serveur
+ * @brief Possible server states
  */
 enum class SERVER_STATUS {
-    OFF,        ///< Serveur arrêté
-    STARTING,   ///< En cours de démarrage
-    RUNNING,    ///< En fonctionnement
-    STOPPING    ///< En cours d'arrêt
+    OFF,        ///< Server stopped
+    STARTING,   ///< Starting up
+    RUNNING,    ///< Running
+    STOPPING    ///< Shutting down
 };
 
 /**
  * @struct ServerConfig
- * @brief Configuration réseau du serveur
+ * @brief Server network configuration
  */
 struct ServerConfig {
-    int socket;                  ///< File descriptor du socket serveur
-    sockaddr_in address;         ///< Adresse du serveur
-    int port;                    ///< Port d'écoute
-    int max_connections;         ///< Nombre max de connexions simultanées
+    int socket;                  ///< Server socket file descriptor
+    sockaddr_in address;         ///< Server address
+    int port;                    ///< Listening port
+    int max_connections;         ///< Max simultaneous connections
 };
 
 #endif

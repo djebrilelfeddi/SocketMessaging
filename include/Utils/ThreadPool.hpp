@@ -1,6 +1,6 @@
 /**
  * @file ThreadPool.hpp
- * @brief Pool de threads pour traitement parallèle
+ * @brief Thread pool for parallel processing
  */
 
 #ifndef THREAD_POOL_HPP
@@ -16,18 +16,18 @@
 
 /**
  * @class ThreadPool
- * @brief Pool de threads worker pour exécution de tâches
+ * @brief Worker thread pool for task execution
  */
 class ThreadPool {
 public:
     /**
-     * @brief Constructeur
-     * @param numThreads Nombre de threads dans le pool
+     * @brief Constructor
+     * @param numThreads Number of threads in the pool
      */
     explicit ThreadPool(size_t numThreads);
     
     /**
-     * @brief Destructeur (attend la fin des tâches)
+     * @brief Destructor (waits for tasks to complete)
      */
     ~ThreadPool();
     
@@ -35,8 +35,8 @@ public:
     ThreadPool& operator=(const ThreadPool&) = delete;
     
     /**
-     * @brief Ajoute une tâche à la queue
-     * @param task Fonction à exécuter
+     * @brief Adds a task to the queue
+     * @param task Function to execute
      */
     void enqueue(std::function<void()> task);
     

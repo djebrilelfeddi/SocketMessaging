@@ -21,14 +21,14 @@
 Server::Server() {
     adminHandler = std::make_unique<AdminCommandHandler>(this);
     commandHandler = std::make_unique<::CommandHandler>(this);
-    LOG_INFO("Serveur créé avec configuration par défaut");
+    LOG_INFO("Server created with default configuration");
 }
 
 Server::Server(const ServerConfig& configuration) 
     : config(configuration) {
     adminHandler = std::make_unique<AdminCommandHandler>(this);
     commandHandler = std::make_unique<::CommandHandler>(this);
-    LOG_INFO("Serveur créé avec configuration personnalisée");
+    LOG_INFO("Server created with custom configuration");
 }
 
 Server::~Server() {
@@ -37,37 +37,37 @@ Server::~Server() {
 
 int Server::start(int PORT, int MAX_CONNECTIONS) {
     if (status != SERVER_STATUS::OFF) {
-        LOG_ERROR("Le serveur est déjà démarré");
+        LOG_ERROR("Server is already started");
         return -1;
     }
     
     status = SERVER_STATUS::STARTING;
-    LOG_INFO("Démarrage du serveur sur le port " + std::to_string(PORT));
+    LOG_INFO("Starting server on port " + std::to_string(PORT));
     
     initializeConfig(PORT);
     config.max_connections = (MAX_CONNECTIONS > 0) ? MAX_CONNECTIONS : 100;
     
     config.socket = socket(AF_INET, SOCK_STREAM, 0);
     if (config.socket < 0) {
-        LOG_ERROR("Échec de la création du socket");
+        LOG_ERROR("Failed to create socket");
         status = SERVER_STATUS::OFF;
         return -1;
     }
     
     int opt = 1;
     if (setsockopt(config.socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        LOG_WARNING("Échec de la configuration SO_REUSEADDR");
+        LOG_WARNING("Failed to configure SO_REUSEADDR");
     }
     
     if (bind(config.socket, (struct sockaddr*)&config.address, sizeof(config.address)) < 0) {
-        LOG_ERROR("Échec du bind sur le port " + std::to_string(PORT));
+        LOG_ERROR("Failed to bind on port " + std::to_string(PORT));
         close(config.socket);
         status = SERVER_STATUS::OFF;
         return -1;
     }
     
     if (listen(config.socket, config.max_connections) < 0) {
-        LOG_ERROR("Échec du listen");
+        LOG_ERROR("Failed to listen");
         close(config.socket);
         status = SERVER_STATUS::OFF;
         return -1;
@@ -81,7 +81,7 @@ int Server::start(int PORT, int MAX_CONNECTIONS) {
     startTime = std::chrono::steady_clock::now();
     
     status = SERVER_STATUS::RUNNING;
-    LOG_INFO("Serveur démarré avec succès");
+    LOG_INFO("Server started successfully");
     
     createServerThreads();
     
@@ -115,7 +115,7 @@ void Server::loadBanlist() {
     std::ifstream file(Constants::DEFAULT_BANLIST);
     
     if (!file.is_open()) {
-        LOG_INFO("Aucun fichier banlist trouvé, création d'une nouvelle liste");
+        LOG_INFO("No banlist file found, creating a new list");
         return;
     }
     
@@ -127,15 +127,15 @@ void Server::loadBanlist() {
     }
     
     file.close();
-    LOG_INFO("Banlist chargée: " + std::to_string(bannedUsers.size()) + " utilisateur(s) banni(s)");
+    LOG_INFO("Banlist loaded: " + std::to_string(bannedUsers.size()) + " banned user(s)");
 }
 
 void Server::saveBanlist() {
-    // Note: Le mutex est déjà verrouillé par banlistAdd
+    // Note: Mutex is already locked by banlistAdd
     std::ofstream file(Constants::DEFAULT_BANLIST);
     
     if (!file.is_open()) {
-        LOG_ERROR("Impossible d'ouvrir le fichier banlist pour écriture");
+        LOG_ERROR("Cannot open banlist file for writing");
         return;
     }
     
@@ -144,7 +144,7 @@ void Server::saveBanlist() {
     }
     
     file.close();
-    LOG_DEBUG("Banlist sauvegardée: " + std::to_string(bannedUsers.size()) + " utilisateur(s)");
+    LOG_DEBUG("Banlist saved: " + std::to_string(bannedUsers.size()) + " user(s)");
 }
 
 void Server::stop() {
@@ -152,7 +152,7 @@ void Server::stop() {
         return;
     }
     
-    LOG_INFO("Arrêt du serveur...");
+    LOG_INFO("Stopping server...");
     status = SERVER_STATUS::STOPPING;
     
     {
@@ -169,7 +169,7 @@ void Server::stop() {
     }
     
     status = SERVER_STATUS::OFF;
-    LOG_INFO("Serveur arrêté");
+    LOG_INFO("Server stopped");
     
     std::exit(0);
 }
@@ -218,7 +218,7 @@ void Server::updateClientPong(const std::string& username) {
 
 
 void Server::heartbeatLoop() {
-    LOG_INFO("Thread de heartbeat démarré");
+    LOG_INFO("Heartbeat thread started");
     
     while (status == SERVER_STATUS::RUNNING) {
         std::this_thread::sleep_for(
@@ -236,17 +236,17 @@ void Server::heartbeatLoop() {
                 Network::NetworkStream stream(info.socket);
                 (void)stream.send("PING\n");
                 info.waitingForPong = true;
-                LOG_DEBUG("PING envoyé à " + username);
+                LOG_DEBUG("PING sent to " + username);
             }
         }
         
-        // Attendre un peu pour que les clients répondent
+        // Wait a bit for clients to respond
         std::this_thread::sleep_for(std::chrono::seconds(Constants::HEARTBEAT_CHECK_DELAY_S));
         
         checkClientTimeouts();
     }
     
-    LOG_INFO("Thread de heartbeat arrêté");
+    LOG_INFO("Heartbeat thread stopped");
 }
 
 void Server::checkClientTimeouts() {
@@ -263,7 +263,7 @@ void Server::checkClientTimeouts() {
             
             if (elapsed > Constants::HEARTBEAT_TIMEOUT_S) {
                 LOG_WARNING("Client timeout: " + username + 
-                           " (pas de réponse depuis " + std::to_string(elapsed) + "s)");
+                           " (no response for " + std::to_string(elapsed) + "s)");
                 timedOutClients.push_back(username);
             }
         }
@@ -303,7 +303,7 @@ void Server::initializeCommands() {
     registerCmd("LIST_USERS", &::CommandHandler::handleListUsers);
     registerCmd("GET_LOG",    &::CommandHandler::handleGetLog);
     
-    LOG_INFO("Commandes initialisées");
+    LOG_INFO("Commands initialized");
 }
 
 void Server::executeCommand(const std::string& commandName, 
@@ -318,8 +318,8 @@ void Server::executeCommand(const std::string& commandName,
         
         it->second(this, parsedData, socket);
     } else {
-        // Erreur 1: Commande inconnue
-        LOG_WARNING("Commande inconnue: " + commandName);
+        // Error 1: Unknown command
+        LOG_WARNING("Unknown command: " + commandName);
         Network::NetworkStream stream(socket);
         (void)stream.send(Utils::MessageParser::build("ERROR", "Unknown command: " + commandName));
     }
@@ -343,7 +343,7 @@ void Server::createServerThreads() {
         heartbeatLoop();
     });
     heartbeatThread.detach();
-    LOG_INFO("Thread de heartbeat lancé");
+    LOG_INFO("Heartbeat thread launched");
     #endif
     
     std::thread adminThread([this]() {
@@ -352,11 +352,11 @@ void Server::createServerThreads() {
         }
     });
     adminThread.detach();
-    LOG_INFO("Thread admin lancé - Tapez /help pour voir les commandes");
+    LOG_INFO("Admin thread launched - Type /help to see commands");
 }
 
 void Server::acceptClients() {
-    LOG_INFO("Thread d'acceptation démarré");
+    LOG_INFO("Accept thread started");
     
     while (status == SERVER_STATUS::RUNNING) {
         sockaddr_in clientAddr;
@@ -366,24 +366,24 @@ void Server::acceptClients() {
         
         if (clientSocket < 0) {
             if (status == SERVER_STATUS::RUNNING) {
-                LOG_ERROR("Échec de l'acceptation d'un client");
+                LOG_ERROR("Failed to accept a client");
             }
             continue;
         }
         
-        LOG_INFO("Nouvelle connexion acceptée (socket: " + std::to_string(clientSocket) + ")");
+        LOG_INFO("New connection accepted (socket: " + std::to_string(clientSocket) + ")");
         
         if (threadPool) {
             threadPool->enqueue([this, clientSocket]() {
                 handleClientMessages(clientSocket);
             });
         } else {
-            LOG_ERROR("ThreadPool non initialisé");
+            LOG_ERROR("ThreadPool not initialized");
             close(clientSocket);
         }
     }
     
-    LOG_INFO("Thread d'acceptation arrêté");
+    LOG_INFO("Accept thread stopped");
 }
 
 void Server::handleClientMessages(int clientSocket) {
@@ -393,7 +393,7 @@ void Server::handleClientMessages(int clientSocket) {
         auto maybeMessage = stream.receive();
         
         if (!maybeMessage) {
-            // Vérifier si le client est encore enregistré avant de tenter la déconnexion
+            // Check if client is still registered before attempting disconnect
             std::string username = getUsernameBySocket(clientSocket);
             if (!username.empty() && commandHandler) {
                 commandHandler->handleDisconnect({}, clientSocket);

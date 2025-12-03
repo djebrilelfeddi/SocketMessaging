@@ -30,33 +30,33 @@ void CommandHandler::sendError(int socket, const std::string& error) {
 
 void CommandHandler::handleConnect(const std::vector<std::string>& parsedData, int socket) {
     if (parsedData.size() < 2) {
-        LOG_WARNING("Données de connexion invalides");
+        LOG_WARNING("Invalid connection data");
         return;
     }
     
     std::string username = Utils::sanitize(parsedData[1]);
     
     if (!Utils::isValidUsername(username)) {
-        LOG_WARNING("Username invalide: " + username);
+        LOG_WARNING("Invalid username: " + username);
         sendError(socket, "Invalid username");
         return;
     }
     
     if (server->isBanned(username)) {
-        LOG_WARNING("Tentative de connexion d'un utilisateur banni: " + username);
+        LOG_WARNING("Banned user connection attempt: " + username);
         sendError(socket, "You are banned from this server");
         close(socket);
         return;
     }
     
     if (server->isUsernameTaken(username)) {
-        LOG_WARNING("Username déjà utilisé: " + username);
+        LOG_WARNING("Username already taken: " + username);
         sendError(socket, "Username already exists");
         return;
     }
       server->registerClient(username, socket);
     
-    LOG_CONNECT("Nouveau client: " + username);
+    LOG_CONNECT("New client: " + username);
     sendResponse(socket, Utils::MessageParser::build("OK", "Connected as " + username));
 }
 
@@ -65,32 +65,32 @@ void CommandHandler::handleDisconnect(const std::vector<std::string>& parsedData
     std::string username = server->getUsernameBySocket(socket);
     
     if (username.empty()) {
-        LOG_WARNING("Tentative de déconnexion d'un client non identifié");
+        LOG_WARNING("Disconnect attempt from unidentified client");
         return;
     }
     
     server->unregisterClient(username);
     
-    LOG_DISCONNECT("Client déconnecté: " + username);
+    LOG_DISCONNECT("Client disconnected: " + username);
     close(socket);
     
     if (Constants::AUTO_STOP_WHEN_NO_CLIENTS && server->getClientCount() == 0) {
-        LOG_INFO("Dernier client déconnecté - Arrêt du serveur");
+        LOG_INFO("Last client disconnected - Stopping server");
         server->stop();
     }
 }
 
 void CommandHandler::handleSendMessage(const std::vector<std::string>& parsedData, int socket) {
-    // Erreur 5: Message mal formaté
+    // Error 5: Malformed message
     if (parsedData.size() < 4) {
-        LOG_WARNING("Format de message invalide");
+        LOG_WARNING("Invalid message format");
         sendError(socket, "Malformed message: missing fields");
         return;
     }
     
     std::string from = server->getUsernameBySocket(socket);
     if (from.empty()) {
-        LOG_WARNING("Tentative d'envoi de message par un client non authentifié");
+        LOG_WARNING("Message send attempt by unauthenticated client");
         sendError(socket, "Not authenticated");
         return;
     }
@@ -105,19 +105,19 @@ void CommandHandler::handleSendMessage(const std::vector<std::string>& parsedDat
     msg.timestamp = std::chrono::system_clock::now();
     
     if (!Utils::isValidSubject(msg.subject)) {
-        LOG_WARNING("Sujet invalide de " + from + " (max " + std::to_string(Constants::MAX_SUBJECT_LENGTH) + " caractères)");
+        LOG_WARNING("Invalid subject from " + from + " (max " + std::to_string(Constants::MAX_SUBJECT_LENGTH) + " characters)");
         sendError(socket, "Subject too long (max " + std::to_string(Constants::MAX_SUBJECT_LENGTH) + " chars)");
         return;
     }
     
     if (!Utils::isValidBody(msg.body)) {
-        LOG_WARNING("Corps du message invalide de " + from);
+        LOG_WARNING("Invalid message body from " + from);
         sendError(socket, "Body is empty");
         return;
     }
     
     if (msg.to == "all") {
-        LOG_INFO("Broadcast de " + from);
+        LOG_INFO("Broadcast from " + from);
         auto clients = server->getAllClients();
         
         for (const auto& [username, userSocket] : clients) {
@@ -131,25 +131,25 @@ void CommandHandler::handleSendMessage(const std::vector<std::string>& parsedDat
             }
         }
         
-        sendOK(socket, "Broadcast envoyé");
+        sendOK(socket, "Broadcast sent");
         return;
     }
     
-    // Erreur 2: Utilisateur destinataire n'existe pas
+    // Error 2: Recipient user does not exist
     int recipientSocket = server->getUserSocket(msg.to);
     if (recipientSocket <= 0) {
-        LOG_WARNING("Destinataire inexistant: " + msg.to + " (de " + from + ")");
+        LOG_WARNING("Non-existent recipient: " + msg.to + " (from " + from + ")");
         sendError(socket, "User '" + msg.to + "' does not exist or is offline");
         return;
     }
     
     auto dispatcher = server->getDispatcher();
-    // Erreur 3: L'émission n'a pas pu être exécutée
+    // Error 3: Sending could not be executed
     if (dispatcher && dispatcher->queueMessage(msg)) {
-        LOG_DEBUG("Message de " + from + " ajouté à la queue");
-        sendOK(socket, "Message envoyé");
+        LOG_DEBUG("Message from " + from + " added to queue");
+        sendOK(socket, "Message sent");
     } else {
-        LOG_ERROR("Échec de l'ajout du message à la queue");
+        LOG_ERROR("Failed to add message to queue");
         sendError(socket, "Failed to send message: queue full or dispatcher error");
     }
 }
@@ -157,7 +157,7 @@ void CommandHandler::handleSendMessage(const std::vector<std::string>& parsedDat
 void CommandHandler::handlePing(const std::vector<std::string>& parsedData, int socket) {
     (void)parsedData;
     sendResponse(socket, "PONG\n");
-    LOG_DEBUG("PING reçu, PONG envoyé");
+    LOG_DEBUG("PING received, PONG sent");
 }
 
 void CommandHandler::handlePong(const std::vector<std::string>& parsedData, int socket) {
@@ -169,7 +169,7 @@ void CommandHandler::handlePong(const std::vector<std::string>& parsedData, int 
     }
     
     server->updateClientPong(username);
-    LOG_DEBUG("PONG reçu de " + username);
+    LOG_DEBUG("PONG received from " + username);
 }
 
 void CommandHandler::handleListUsers(const std::vector<std::string>& parsedData, int socket) {
@@ -186,7 +186,7 @@ void CommandHandler::handleListUsers(const std::vector<std::string>& parsedData,
     }
     
     sendResponse(socket, Utils::MessageParser::build("USERS", userList));
-    LOG_DEBUG("Liste des utilisateurs envoyée");
+    LOG_DEBUG("User list sent");
 }
 
 void CommandHandler::handleGetLog(const std::vector<std::string>& parsedData, int socket) {
@@ -194,7 +194,7 @@ void CommandHandler::handleGetLog(const std::vector<std::string>& parsedData, in
     
     std::ifstream logFile(Constants::DEFAULT_SERVER_LOG);
     if (!logFile.is_open()) {
-        LOG_WARNING("Impossible d'ouvrir le fichier de log: " + Constants::DEFAULT_SERVER_LOG);
+        LOG_WARNING("Cannot open log file: " + Constants::DEFAULT_SERVER_LOG);
         sendError(socket, "Log file not available");
         return;
     }
@@ -208,7 +208,7 @@ void CommandHandler::handleGetLog(const std::vector<std::string>& parsedData, in
     
     if (lines.empty()) {
         sendResponse(socket, Utils::MessageParser::build("LOG", "Log file is empty"));
-        LOG_DEBUG("Log vide envoyé");
+        LOG_DEBUG("Empty log sent");
         return;
     }
     
@@ -219,5 +219,5 @@ void CommandHandler::handleGetLog(const std::vector<std::string>& parsedData, in
     }
     
     sendResponse(socket, Utils::MessageParser::build("LOG", logContent));
-    LOG_DEBUG("Log envoyé (" + std::to_string(lines.size() - start) + " lignes)");
+    LOG_DEBUG("Log sent (" + std::to_string(lines.size() - start) + " lines)");
 }

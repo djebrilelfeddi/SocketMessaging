@@ -1,6 +1,6 @@
 /**
  * @file NetworkStream.hpp
- * @brief Abstraction réseau avec encodage/décodage automatique
+ * @brief Network abstraction with automatic encoding/decoding
  */
 
 #ifndef NETWORK_STREAM_HPP
@@ -13,16 +13,16 @@ namespace Network {
 
 /**
  * @class NetworkStream
- * @brief Encapsule l'envoi/réception avec protocole [4-byte length][data]
+ * @brief Encapsulates send/receive with [4-byte length][data] protocol
  * 
- * Gère automatiquement l'encodage (préfixe de longueur) et le décodage.
+ * Automatically handles encoding (length prefix) and decoding.
  * Non-copyable.
  */
 class NetworkStream {
 public:
     /**
-     * @brief Constructeur
-     * @param socket File descriptor du socket connecté
+     * @brief Constructor
+     * @param socket Connected socket file descriptor
      */
     explicit NetworkStream(int socket);
     
@@ -30,21 +30,21 @@ public:
     NetworkStream& operator=(const NetworkStream&) = delete;
     
     /**
-     * @brief Envoie un message (encodage automatique)
-     * @param message Données à envoyer
-     * @return true si envoi réussi
+     * @brief Sends a message (automatic encoding)
+     * @param message Data to send
+     * @return true if send succeeded
      */
     [[nodiscard]] bool send(const std::string& message);
     
     /**
-     * @brief Reçoit un message (décodage automatique)
-     * @return Message reçu ou std::nullopt si échec
+     * @brief Receives a message (automatic decoding)
+     * @return Received message or std::nullopt on failure
      */
     [[nodiscard]] std::optional<std::string> receive();
     
     /**
-     * @brief Vérifie si la connexion est active
-     * @return true si connecté
+     * @brief Checks if connection is active
+     * @return true if connected
      */
     [[nodiscard]] bool isConnected() const;
     
