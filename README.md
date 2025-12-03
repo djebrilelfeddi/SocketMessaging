@@ -1,3 +1,30 @@
+<div align="center">
+
+<!-- Logo -->
+<img src="https://iili.io/fIHZqIs.png" alt="ThreadSocket Logo" width="800"/>
+
+<br/>
+
+### *Real-time messaging. Raw sockets. Pure C++.*
+
+<br/>
+
+[![C++](https://img.shields.io/badge/C++-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://isocpp.org/)
+[![Linux](https://img.shields.io/badge/Linux-POSIX-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://www.kernel.org/)
+[![TCP](https://img.shields.io/badge/TCP-Sockets-4A90D9?style=for-the-badge&logo=socket.io&logoColor=white)](/)
+[![ThreadPool](https://img.shields.io/badge/ThreadPool-Concurrent-9B59B6?style=for-the-badge&logo=threads&logoColor=white)](/)
+[![Make](https://img.shields.io/badge/Make-Build-FF6B6B?style=for-the-badge&logo=gnu&logoColor=white)](https://www.gnu.org/software/make/)
+
+<br/>
+
+[🚀 Quick Start](#build-and-run) · [🏗️ Architecture](#architecture-overview) · [📡 Protocol](#message-pipeline) · [⚙️ Admin](#administrative-shell)
+
+---
+
+</div>
+
+<br/>
+
 # SocketMessaging
 
 SocketMessaging is a C++17 client/server stack that combines a thread-pooled TCP listener, a queued message dispatcher, and an administrative control surface for orchestrating multi-user messaging sessions. The code base targets Linux/POSIX environments and relies on raw sockets and lightweight utilities instead of heavyweight networking frameworks.
