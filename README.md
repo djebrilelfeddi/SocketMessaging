@@ -155,4 +155,4 @@ Changes via `/set` take effect immediately and survive until `/reset` or server 
 
 ## License
 
-PipelineSocket is released under the MIT License. Review `LICENSE` before redistribution and update copyright notices as needed.
+SocketMessaging is released under the MIT License. Review `LICENSE` before redistribution and update copyright notices as needed.
