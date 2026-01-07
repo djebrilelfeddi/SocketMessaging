@@ -27,7 +27,7 @@
 
 # SocketMessaging
 
-SocketMessaging is a C++17 client/server stack that combines a thread-pooled TCP listener, a queued message dispatcher, and an administrative control surface for orchestrating multi-user messaging sessions. The code base targets Linux/POSIX environments and relies on raw sockets and lightweight utilities instead of heavyweight networking frameworks.
+SocketMessaging is a C++17 client/server stack that combines a **thread-pooled TCP listener**, a queued message **dispatcher**, and an administrative control surface for orchestrating multi-user messaging sessions. The code base targets Linux/POSIX environments and relies on raw sockets and lightweight utilities instead of heavyweight networking frameworks.
 
 ## Screenshots
 
@@ -51,15 +51,6 @@ SocketMessaging is a C++17 client/server stack that combines a thread-pooled TCP
 </tr>
 </table>
 </div>
-
-## Key Capabilities
-
-- Concurrent server runtime with acceptor, dispatcher, heartbeat, and admin command threads managed through a shared `ThreadPool`.
-- Queue-centric message delivery (`Dispatcher`) with configurable back-pressure policies (reject, drop-oldest, drop-newest) and delivery telemetry.
-- Runtime administrative shell (`AdminCommandHandler`) that exposes broadcast, targeted messaging, live stats, banlist management, and hot configuration toggles.
-- Structured message protocol (`Utils::MessageParser`) that enforces command-delimited payloads and normalises responses (OK, ERROR, USERS, MESSAGE, LOG).
-- Built-in heartbeat loop for liveness detection, automatic disconnect handling, and retention of banlists across restarts.
-- Verbose/quiet logging pipeline (`Utils::Logger`) with rotating levels, per-process log files, and optional tail retrieval by clients (`GET_LOG`).
 
 ## Architecture Overview
 
